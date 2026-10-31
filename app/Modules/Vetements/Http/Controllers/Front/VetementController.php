@@ -8,8 +8,12 @@ use App\Modules\Vetements\Exceptions\ChatVetementException;
 use App\Modules\Vetements\Http\Requests\AnalyserImageVetementRequest;
 use App\Modules\Vetements\Http\Requests\DiscuterVetementRequest;
 use App\Modules\Vetements\Exceptions\StyleVetementException;
+use App\Modules\Vetements\Http\Requests\EnregistrerGuideRestyleRequest;
 use App\Modules\Vetements\Http\Requests\ProposerStyleVetementRequest;
+use App\Modules\Vetements\Http\Requests\RestylerPieceVetementRequest;
+use App\Modules\Vetements\Http\Requests\RestylerVetementRequest;
 use App\Modules\Vetements\Http\Requests\StoreVetementRequest;
+use App\Modules\Vetements\Services\GuideRestyleService;
 use App\Modules\Vetements\Services\PropositionStyleVetementService;
 use App\Modules\Vetements\Http\Requests\UpdateIntendedActionRequest;
 use App\Modules\Vetements\Models\Vetement;
@@ -28,7 +32,8 @@ class VetementController extends Controller
         private VetementService $vetements,
         private AnalyseImageVetementService $analyses,
         private ChatVetementService $chat,
-        private PropositionStyleVetementService $styles
+        private PropositionStyleVetementService $styles,
+        private GuideRestyleService $guides
     ) {
     }
 
@@ -199,6 +204,139 @@ class VetementController extends Controller
         }
 
         return response()->json($resultat);
+    }
+
+    public function restyler(RestylerVetementRequest $request): JsonResponse
+    {
+        return $this->reponseRestyle($request->file('photo'), (string) $request->validated()['instruction']);
+    }
+
+    public function restylerPiece(RestylerPieceVetementRequest $request, string $vetement): JsonResponse
+    {
+        $model = $this->vetements->findOwnedByUser($vetement, auth()->user());
+
+        if (! $model) {
+            abort(404);
+        }
+
+        if (empty($model->image_path)) {
+            return response()->json([
+                'message' => 'Ajoutez une photo pour visualiser la réparation.',
+            ], 422);
+        }
+
+        $absolu = Storage::disk('public')->path($model->image_path);
+        if (! is_file($absolu)) {
+            return response()->json([
+                'message' => 'La photo de cette pièce est introuvable.',
+            ], 422);
+        }
+
+        $mime = mime_content_type($absolu);
+
+        return $this->reponseRestyle(new UploadedFile(
+            $absolu,
+            basename($absolu),
+            is_string($mime) ? $mime : null,
+            UPLOAD_ERR_OK,
+            true
+        ), (string) $request->validated()['instruction']);
+    }
+
+    private function reponseRestyle(UploadedFile $photo, string $instruction): JsonResponse
+    {
+        if (! $this->styles->estConfigure()) {
+            return response()->json([
+                'disponible' => false,
+                'message' => 'Le restyle n\'est pas activé sur cette installation.',
+            ], 503);
+        }
+
+        try {
+            $resultat = $this->styles->restyler($photo, $instruction);
+        } catch (StyleVetementException $exception) {
+            report($exception);
+
+            return response()->json([
+                'disponible' => false,
+                'message' => $exception->getMessage(),
+            ], 502);
+        }
+
+        if (! empty($resultat['en_attente'])) {
+            return response()->json($resultat, 202);
+        }
+
+        return response()->json($resultat);
+    }
+
+    public function enregistrerGuide(EnregistrerGuideRestyleRequest $request): JsonResponse
+    {
+        $vetementId = $request->validated('vetement_id');
+
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $vetementId = null;
+        } else {
+            $model = $this->vetements->findOwnedByUser((string) $vetementId, $request->user());
+            if (! $model) {
+                abort(404);
+            }
+
+            $photo = $this->fichierPhoto($model);
+            if (! $photo instanceof UploadedFile) {
+                return response()->json([
+                    'message' => 'La photo de cette pièce est introuvable.',
+                ], 422);
+            }
+
+            $vetementId = (string) $model->getKey();
+        }
+
+        try {
+            $resultat = $this->guides->enregistrer(
+                $request->user(),
+                $photo,
+                (string) $request->validated('instruction'),
+                $request->validated('jeton'),
+                $request->validated('image_apres'),
+                is_string($vetementId) ? $vetementId : null
+            );
+        } catch (StyleVetementException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 422);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'message' => 'Le guide n\'a pas pu être enregistré. Réessayez.',
+            ], 500);
+        }
+
+        return response()->json($resultat, $resultat['envoye'] ? 200 : 502);
+    }
+
+    private function fichierPhoto(Vetement $model): ?UploadedFile
+    {
+        if (empty($model->image_path)) {
+            return null;
+        }
+
+        $absolu = Storage::disk('public')->path($model->image_path);
+        if (! is_file($absolu)) {
+            return null;
+        }
+
+        $mime = mime_content_type($absolu);
+
+        return new UploadedFile(
+            $absolu,
+            basename($absolu),
+            is_string($mime) ? $mime : null,
+            UPLOAD_ERR_OK,
+            true
+        );
     }
 
     public function analyserPiece(string $vetement): RedirectResponse

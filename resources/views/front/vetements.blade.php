@@ -1,22 +1,44 @@
-@extends('layouts.front')
+@extends('layouts.trame')
 
-@section('content')
-<main class="container page-content">
-    <div class="page-title-row">
-        <div>
-            <p class="kicker">Mon espace citoyen</p>
+@section('title', 'Mes vêtements')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/vetements-trame.css') }}?v={{ filemtime(public_path('css/vetements-trame.css')) }}">
+@endpush
+
+@section('bandeau')
+    <nav class="tr-ariane" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a href="{{ route('front.home') }}">Accueil</a></li>
+            <li><span aria-current="page">Mes vêtements</span></li>
+        </ol>
+    </nav>
+    <div class="tr-bandeau__grille">
+        <div class="tr-bandeau__principal">
             <h1>Mes vêtements</h1>
-            <p class="muted">Suivez vos pièces en cours. Les réparations et dons validés passent dans l'historique.@if($analysePhotoDisponible) À la déclaration, la photo estime si une réparation a une deuxième chance.@endif</p>
+            <p class="tr-bandeau__intro">Suivez vos pièces en cours. Les réparations et dons validés passent dans l'historique.@if($analysePhotoDisponible) À la déclaration, la photo estime si une réparation a une deuxième chance.@endif</p>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <a href="{{ route('front.historique') }}" class="btn btn-secondary"><i data-lucide="history"></i> Historique</a>
-            <button type="button" class="btn btn-primary" data-open-modal="clothing-modal"><i data-lucide="plus"></i> Déclarer un vêtement</button>
+        <div class="tr-bandeau__cote">
+            <a href="{{ route('front.historique') }}" class="tr-pilule">
+                <i data-lucide="history" aria-hidden="true"></i> Historique
+            </a>
+            <button type="button" class="tr-pilule est-claire" data-open-modal="clothing-modal">
+                <i data-lucide="plus" aria-hidden="true"></i> Déclarer un vêtement
+            </button>
             @if($styleDisponible)
-                <button type="button" class="btn btn-secondary" data-open-modal="style-modal"><i data-lucide="box"></i> Nouveau style 3D</button>
+                <button type="button" class="tr-pilule" data-open-modal="restyle-modal">
+                    <i data-lucide="sparkles" aria-hidden="true"></i> Restyle
+                </button>
+                <button type="button" class="tr-pilule" data-open-modal="style-modal">
+                    <i data-lucide="box" aria-hidden="true"></i> Style 3D
+                </button>
             @endif
         </div>
     </div>
+@endsection
 
+@section('content')
+<main class="container page-content vetements-page">
     @if($vetements->isNotEmpty())
     @php($suggestionIa = $vetements->first(fn ($v) => ($v->analyseIa()['verdict'] ?? null) === 'reparable'))
     @php($vetementAReparer = $suggestionIa ?? $vetements->first(fn ($v) => $v->intended_action === 'reparation'))
@@ -100,6 +122,13 @@
                             </form>
                         @endif
                         @if($styleDisponible && $vetement->image_path)
+                            @php($analysePiece = $vetement->analyseIa())
+                            <button type="button" class="btn btn-secondary small"
+                                    data-restyle-piece="{{ route('front.vetements.restyle.piece', $vetement->getKey()) }}"
+                                    data-restyle-photo="{{ $vetement->photoUrl() }}"
+                                    @if(! empty($analysePiece['resume'])) data-restyle-instruction="{{ $analysePiece['resume'] }}" @endif>
+                                <i data-lucide="sparkles"></i> Restyle
+                            </button>
                             <button type="button" class="btn btn-secondary small" data-style-piece="{{ route('front.vetements.style.piece', $vetement->getKey()) }}">
                                 <i data-lucide="box"></i> Style 3D
                             </button>
@@ -111,18 +140,21 @@
                 </div>
             </article>
         @empty
-            <div class="panel" style="grid-column:1/-1;padding:32px;text-align:center;color:var(--muted)">
-                <p>Aucun vêtement en cours.</p>
-                <p style="margin-top:8px">Les pièces réparées ou données se retrouvent dans <a href="{{ route('front.historique') }}" style="color:var(--green);font-weight:600">l'historique du cycle de vie</a>.</p>
-            </div>
+            <section class="tr-fil vetements-vide" aria-labelledby="vetements-vide">
+                <h2 id="vetements-vide">Aucun vêtement en cours</h2>
+                <p class="muted">Les pièces réparées ou données se retrouvent dans <a href="{{ route('front.historique') }}">l'historique du cycle de vie</a>.</p>
+            </section>
         @endforelse
     </div>
 </main>
-
-<x-clothing-modal :disponible="$analysePhotoDisponible" />
-<x-clothing-chat :disponible="$chatDisponible" />
-<x-style-modal :disponible="$styleDisponible" />
 @endsection
+
+@push('overlays')
+    <x-clothing-modal :disponible="$analysePhotoDisponible" />
+    <x-clothing-chat :disponible="$chatDisponible" />
+    <x-restyle-modal :disponible="$styleDisponible" />
+    <x-style-modal :disponible="$styleDisponible" />
+@endpush
 
 @if($errors->any())
     @push('scripts')

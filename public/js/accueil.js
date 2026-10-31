@@ -5,6 +5,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Vidéo : en pause sur le poster si l'utilisateur limite les animations.
   const video = document.querySelector('[data-hv-video]');
+  const boutonPause = document.querySelector('[data-hv-pause]');
+  const libellePause = boutonPause?.querySelector('.hv-pause__pause');
+  const libelleLecture = boutonPause?.querySelector('.hv-pause__lecture');
+
+  const afficherLecture = (enPause) => {
+    if (!boutonPause) return;
+    boutonPause.setAttribute(
+      'aria-label',
+      enPause ? 'Lire la vidéo d\'arrière-plan' : 'Mettre la vidéo d\'arrière-plan en pause',
+    );
+    if (libellePause) libellePause.hidden = enPause;
+    if (libelleLecture) libelleLecture.hidden = !enPause;
+  };
+
   const appliquerMouvement = () => {
     if (!video) return;
     if (mouvementReduit.matches) {
@@ -12,12 +26,23 @@ document.addEventListener('DOMContentLoaded', () => {
       video.pause();
       // load() remet la vidéo à zéro : le navigateur réaffiche le poster tant qu'elle ne joue pas.
       video.load();
-    } else {
-      video.play().catch(() => {});
+      afficherLecture(true);
+      return;
     }
+    video.play().then(() => afficherLecture(false)).catch(() => afficherLecture(true));
   };
   appliquerMouvement();
   mouvementReduit.addEventListener('change', appliquerMouvement);
+
+  boutonPause?.addEventListener('click', () => {
+    if (!video) return;
+    if (video.paused) {
+      video.play().then(() => afficherLecture(false)).catch(() => afficherLecture(true));
+      return;
+    }
+    video.pause();
+    afficherLecture(true);
+  });
 
   // Carte : même composant que la page Ateliers (créé par ateliers-map.js). Les ateliers arrivent de
   // carte.json quand la carte approche de l'écran ; en cas d'échec, elle reste centrée sur Tunis.

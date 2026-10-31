@@ -1,13 +1,10 @@
-@extends('layouts.front')
+@extends('layouts.trame')
 
-{{-- viewport-fit=cover : nécessaire pour que env(safe-area-inset-*) ait une valeur (encoches des téléphones). --}}
-@section('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover')
-
-{{-- Carte : mêmes Leaflet, styles et script que la page Ateliers. trame.css : style commun ; accueil.css : propre à l'accueil. --}}
+{{-- Carte : mêmes Leaflet, styles et script que la page Ateliers. accueil.css : propre à l'accueil.
+     trame.css et trame.js viennent du gabarit. --}}
 @push('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
     <link rel="stylesheet" href="{{ asset('css/ateliers.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/trame.css') }}">
     <link rel="stylesheet" href="{{ asset('css/accueil.css') }}">
 @endpush
 
@@ -15,14 +12,13 @@
 @push('scripts')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="{{ asset('js/ateliers-map.js') }}"></script>
-    <script src="{{ asset('js/trame.js') }}"></script>
     <script src="{{ asset('js/accueil.js') }}"></script>
 @endpush
 
 @section('hero')
 @include('layouts.partials.barre-trame')
 
-<section class="hv" aria-labelledby="hv-titre" data-hv>
+<section class="hv" id="contenu" tabindex="-1" aria-labelledby="hv-titre" data-hv>
     <div class="hv-media" aria-hidden="true">
         <div class="hv-cadre">
             <video class="hv-video" autoplay muted loop playsinline preload="auto" tabindex="-1"
@@ -57,6 +53,11 @@
         <span class="hv-ligne" aria-hidden="true"><span>seconde vie</span></span>
         <span class="hv-ligne" aria-hidden="true"><span>à vos <em>vêtements.</em></span></span>
     </h1>
+
+    <button type="button" class="hv-pause" data-hv-pause aria-label="Mettre la vidéo d'arrière-plan en pause">
+        <span class="hv-pause__pause"><i data-lucide="pause" aria-hidden="true"></i> Pause</span>
+        <span class="hv-pause__lecture" hidden><i data-lucide="play" aria-hidden="true"></i> Lecture</span>
+    </button>
 </section>
 @endsection
 

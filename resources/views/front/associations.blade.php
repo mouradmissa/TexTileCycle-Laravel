@@ -1,16 +1,28 @@
-@extends('layouts.front')
+@extends('layouts.trame')
 
-@section('title', 'Associations partenaires — TexTileCycle')
+@section('title', 'Associations partenaires')
 
-@section('content')
-<main class="container page-content">
-    <div class="page-title-row">
-        <div>
-            <p class="kicker">Solidarité textile</p>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/client-trame.css') }}">
+@endpush
+
+@section('bandeau')
+    <nav class="tr-ariane" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a href="{{ route('front.home') }}">Accueil</a></li>
+            <li><span aria-current="page">Associations</span></li>
+        </ol>
+    </nav>
+    <div class="tr-bandeau__grille">
+        <div class="tr-bandeau__principal">
             <h1>Associations partenaires</h1>
-            <p class="muted">Des besoins réels, des dons qui comptent vraiment.</p>
+            <p class="tr-bandeau__intro">Des besoins réels, des dons qui comptent vraiment.</p>
         </div>
     </div>
+@endsection
+
+@section('content')
+<main class="container page-content client-page">
 
     @if($associations->isEmpty())
         <div class="empty-state">

@@ -48,14 +48,15 @@
 
     <div class="panel table-panel">
         <table>
+            <caption class="sr-only">Partenaires</caption>
             <thead>
                 <tr>
-                    <th>{{ $types[$type]['label'] }}</th>
-                    <th>Adresse</th>
-                    <th>Compte responsable</th>
-                    <th>Inscrit le</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
+                    <th scope="col">{{ $types[$type]['label'] }}</th>
+                    <th scope="col">Adresse</th>
+                    <th scope="col">Compte responsable</th>
+                    <th scope="col">Inscrit le</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>

@@ -14,8 +14,8 @@
                 <h2 style="font-size:22px;margin:0">{{ $pageTitle }}</h2>
             </div>
             @unless($premiereFiche ?? false)
-                <a href="{{ route('back.associations') }}" class="icon-btn" title="Retour">
-                    <i data-lucide="x"></i>
+                <a href="{{ route('back.associations') }}" class="icon-btn" aria-label="Retour à la liste des associations">
+                    <i data-lucide="x" aria-hidden="true"></i>
                 </a>
             @endunless
         </div>
@@ -104,22 +104,22 @@
                     @php $besoins = old('besoins', $association?->besoins ?? []); @endphp
                     @forelse($besoins as $i => $besoin)
                         <div class="besoin-row" data-index="{{ $i }}">
-                            <select name="besoins[{{ $i }}][type]" class="form-control">
+                            <select name="besoins[{{ $i }}][type]" class="form-control" aria-label="Type de textile du besoin {{ $i + 1 }}">
                                 <option value="">— Type de textile —</option>
                                 @foreach($typesTextile as $t)
                                     <option value="{{ $t }}" {{ ($besoin['type'] ?? '') === $t ? 'selected' : '' }}>{{ $t }}</option>
                                 @endforeach
                             </select>
-                            <select name="besoins[{{ $i }}][taille]" class="form-control small-select">
+                            <select name="besoins[{{ $i }}][taille]" class="form-control small-select" aria-label="Taille du besoin {{ $i + 1 }}">
                                 <option value="">Taille</option>
                                 @foreach($tailles as $ta)
                                     <option value="{{ $ta }}" {{ ($besoin['taille'] ?? '') === $ta ? 'selected' : '' }}>{{ $ta }}</option>
                                 @endforeach
                             </select>
                             <input type="number" name="besoins[{{ $i }}][quantite]" class="form-control small-input"
-                                   placeholder="Qté" min="1" value="{{ $besoin['quantite'] ?? '' }}">
-                            <button type="button" class="icon-btn danger remove-besoin" title="Supprimer">
-                                <i data-lucide="x"></i>
+                                   placeholder="Qté" min="1" value="{{ $besoin['quantite'] ?? '' }}" aria-label="Quantité du besoin {{ $i + 1 }}">
+                            <button type="button" class="icon-btn danger remove-besoin" aria-label="Retirer le besoin {{ $i + 1 }}">
+                                <i data-lucide="x" aria-hidden="true"></i>
                             </button>
                         </div>
                     @empty
@@ -154,14 +154,14 @@ function buildBesoinRow(index) {
     const tailleOpts = taillesOptions.map(t => `<option value="${t}">${t}</option>`).join('');
     return `
     <div class="besoin-row" data-index="${index}">
-        <select name="besoins[${index}][type]" class="form-control">
+        <select name="besoins[${index}][type]" class="form-control" aria-label="Type de textile du besoin ${index + 1}">
             <option value="">— Type de textile —</option>${typeOpts}
         </select>
-        <select name="besoins[${index}][taille]" class="form-control small-select">
+        <select name="besoins[${index}][taille]" class="form-control small-select" aria-label="Taille du besoin ${index + 1}">
             <option value="">Taille</option>${tailleOpts}
         </select>
-        <input type="number" name="besoins[${index}][quantite]" class="form-control small-input" placeholder="Qté" min="1">
-        <button type="button" class="icon-btn danger remove-besoin" title="Supprimer"><i data-lucide="x"></i></button>
+        <input type="number" name="besoins[${index}][quantite]" class="form-control small-input" placeholder="Qté" min="1" aria-label="Quantité du besoin ${index + 1}">
+        <button type="button" class="icon-btn danger remove-besoin" aria-label="Retirer le besoin ${index + 1}"><i data-lucide="x" aria-hidden="true"></i></button>
     </div>`;
 }
 

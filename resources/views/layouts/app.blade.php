@@ -37,6 +37,7 @@
     @stack('styles')
 </head>
 <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
     @yield('body')
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="{{ asset('js/app.js') }}"></script>

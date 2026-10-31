@@ -321,7 +321,29 @@
 
 /* ================================================================ focus */
 
+.hv-pause {
+  position: absolute;
+  z-index: 3;
+  top: calc(var(--tr-nav-h) + 12px);
+  right: calc(var(--tr-marge) + env(safe-area-inset-right));
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgb(255 255 255 / .35);
+  border-radius: 999px;
+  background: rgb(7 17 12 / .72);
+  color: var(--tr-texte);
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.hv-pause svg { width: 15px; height: 15px; }
+
 .hv a:focus-visible,
+.hv button:focus-visible,
 .acc a:focus-visible {
   outline: 2px solid var(--tr-point);
   outline-offset: 3px;

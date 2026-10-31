@@ -56,15 +56,16 @@
 
     <div class="panel table-panel">
         <table>
+            <caption class="sr-only">Signalements</caption>
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Élément signalé</th>
-                    <th>Type</th>
-                    <th>Motif</th>
-                    <th>Auteur</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Élément signalé</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Motif</th>
+                    <th scope="col">Auteur</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,12 +82,12 @@
                         <td><x-status-badge :tone="$signalement->statutTone()">{{ $signalement->statutLabel() }}</x-status-badge></td>
                         <td>
                             <div class="row-actions">
-                                <a href="{{ route('back.signalements.show', $signalement->getKey()) }}" class="icon-btn" title="Voir le détail" aria-label="Voir"><i data-lucide="eye"></i></a>
-                                <a href="{{ route('back.signalements.edit', $signalement->getKey()) }}" class="icon-btn" title="Modifier" aria-label="Modifier"><i data-lucide="pencil"></i></a>
+                                <a href="{{ route('back.signalements.show', $signalement->getKey()) }}" class="icon-btn" aria-label="Voir le signalement du {{ $signalement->created_at?->format('d/m/Y') }}"><i data-lucide="eye" aria-hidden="true"></i></a>
+                                <a href="{{ route('back.signalements.edit', $signalement->getKey()) }}" class="icon-btn" aria-label="Modifier le signalement du {{ $signalement->created_at?->format('d/m/Y') }}"><i data-lucide="pencil" aria-hidden="true"></i></a>
                                 <form method="post" action="{{ route('back.signalements.destroy', $signalement->getKey()) }}" onsubmit="return confirm('Supprimer définitivement ce signalement ?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="icon-btn btn-danger" title="Supprimer" aria-label="Supprimer"><i data-lucide="trash-2"></i></button>
+                                    <button type="submit" class="icon-btn btn-danger" aria-label="Supprimer le signalement du {{ $signalement->created_at?->format('d/m/Y') }}"><i data-lucide="trash-2" aria-hidden="true"></i></button>
                                 </form>
                             </div>
                         </td>

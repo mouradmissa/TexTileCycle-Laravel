@@ -21,36 +21,30 @@
 
 @section('body')
 <div class="front-shell tr-page">
-    @include('layouts.partials.barre-trame')
-
-    <div class="tr-bandeau">
-        <div class="tr-grille" aria-hidden="true"></div>
-        @yield('bandeau')
-    </div>
-
-    <div class="tr-contenu">
-        <div class="tr-grille" aria-hidden="true"></div>
-
-        @if(session('success') || session('info') || session('error') || $errors->any())
-            <div class="tr-messages">
-                @if(session('success'))
-                    <p class="tr-message">{{ session('success') }}</p>
-                @endif
-                @if(session('info'))
-                    <p class="tr-message est-info">{{ session('info') }}</p>
-                @endif
-                @if(session('error'))
-                    <p class="tr-message est-erreur" role="alert">{{ session('error') }}</p>
-                @endif
-                @foreach($errors->all() as $error)
-                    <p class="tr-message est-erreur">{{ $error }}</p>
-                @endforeach
-            </div>
-        @endif
-
+    {{-- L'accueil apporte son hero plein écran (vidéo + barre). Les autres pages ont le bandeau sombre. --}}
+    @hasSection('hero')
+        @yield('hero')
+        @include('layouts.partials.trame-messages')
         @yield('content')
-    </div>
+        @include('layouts.partials.front-pied', ['trame' => true])
+    @else
+        @include('layouts.partials.barre-trame')
 
-    @include('layouts.partials.front-pied', ['trame' => true])
+        <div class="tr-bandeau" id="contenu" tabindex="-1">
+            <div class="tr-grille" aria-hidden="true"></div>
+            @yield('bandeau')
+        </div>
+
+        <div class="tr-contenu">
+            <div class="tr-grille" aria-hidden="true"></div>
+            @include('layouts.partials.trame-messages')
+            @yield('content')
+        </div>
+
+        @include('layouts.partials.front-pied', ['trame' => true])
+    @endif
+
+    {{-- Au-dessus de la barre fixe : les fenêtres ne restent pas coincées sous la navigation. --}}
+    @stack('overlays')
 </div>
 @endsection

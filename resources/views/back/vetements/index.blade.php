@@ -43,13 +43,14 @@
 
     <div class="panel table-panel">
         <table>
+            <caption class="sr-only">Vêtements</caption>
             <thead>
                 <tr>
-                    <th>Pièce</th>
-                    <th>Client</th>
-                    <th>Parcours</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
+                    <th scope="col">Pièce</th>
+                    <th scope="col">Client</th>
+                    <th scope="col">Parcours</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>

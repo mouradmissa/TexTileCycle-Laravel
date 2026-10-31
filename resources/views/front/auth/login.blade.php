@@ -1,30 +1,45 @@
-@extends('layouts.front')
+@extends('layouts.trame')
+
+@section('title', 'Connexion')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/client-trame.css') }}">
+@endpush
+
+@section('bandeau')
+    <nav class="tr-ariane" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a href="{{ route('front.home') }}">Accueil</a></li>
+            <li><span aria-current="page">Connexion</span></li>
+        </ol>
+    </nav>
+    <div class="tr-bandeau__grille">
+        <div class="tr-bandeau__principal">
+            <h1>Connexion</h1>
+            <p class="tr-bandeau__intro">Accédez à vos vêtements, rendez-vous et dons. Les comptes atelier et association sont activés après validation administrative.</p>
+        </div>
+        <div class="tr-bandeau__cote">
+            <a href="{{ route('front.register') }}" class="tr-pilule est-claire">
+                <i data-lucide="user-plus" aria-hidden="true"></i> Créer un compte
+            </a>
+        </div>
+    </div>
+@endsection
 
 @section('content')
-<main class="auth-page container">
+<main class="auth-page container client-page">
     <div class="auth-card">
-        <p class="kicker">Espace citoyen</p>
-        <h1>Connexion</h1>
-        <p class="muted">Accédez à vos vêtements, rendez-vous et dons.</p>
-        <p class="muted small" style="margin-top:8px">Comptes <strong>atelier / association</strong> : connexion possible uniquement après validation administrative. Les administrateurs accèdent ensuite à l'espace professionnel.</p>
-
-        @if($errors->any())
-            <div class="field-error" style="margin-top:16px">
-                @foreach($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
-            </div>
-        @endif
-
-        <form action="{{ route('front.login.store') }}" method="post" style="margin-top:24px">
+        <form action="{{ route('front.login.store') }}" method="post">
             @csrf
             <div class="field">
                 <label for="email">Adresse e-mail</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="vous@exemple.tn" required>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="vous@exemple.tn" required autocomplete="email" @error('email') aria-invalid="true" aria-describedby="erreur-email" @enderror>
+                @error('email')<p class="form-error" id="erreur-email">{{ $message }}</p>@enderror
             </div>
             <div class="field">
                 <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" placeholder="••••••••" required>
+                <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" @error('password') aria-invalid="true" aria-describedby="erreur-password" @enderror>
+                @error('password')<p class="form-error" id="erreur-password">{{ $message }}</p>@enderror
             </div>
             <div class="field">
                 <label><input type="checkbox" name="remember" value="1" @checked(old('remember'))> Se souvenir de moi</label>

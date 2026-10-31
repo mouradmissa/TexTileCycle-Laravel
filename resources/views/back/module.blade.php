@@ -6,21 +6,22 @@
 <div class="module">
     <div class="module-toolbar">
         <div class="filter-row">
-            <button type="button" class="select-btn">Tous les statuts <i data-lucide="chevron-down"></i></button>
-            <button type="button" class="select-btn">Ce mois-ci <i data-lucide="chevron-down"></i></button>
+            <button type="button" class="select-btn" disabled>Tous les statuts <i data-lucide="chevron-down" aria-hidden="true"></i></button>
+            <button type="button" class="select-btn" disabled>Ce mois-ci <i data-lucide="chevron-down" aria-hidden="true"></i></button>
         </div>
-        <button type="button" class="btn btn-primary"><i data-lucide="plus"></i> Ajouter</button>
+        <button type="button" class="btn btn-primary" disabled><i data-lucide="plus" aria-hidden="true"></i> Ajouter</button>
     </div>
 
     <div class="panel table-panel">
         <table>
+            <caption class="sr-only">Éléments du module</caption>
             <thead>
                 <tr>
-                    <th>Élément</th>
-                    <th>Statut</th>
-                    <th>Date</th>
-                    <th>Propriétaire</th>
-                    <th></th>
+                    <th scope="col">Élément</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Propriétaire</th>
+                    <th scope="col"><span class="sr-only">Actions</span></th>
                 </tr>
             </thead>
             <tbody>

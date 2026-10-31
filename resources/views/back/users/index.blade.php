@@ -11,7 +11,7 @@
     @endif
 
     @if($errors->any())
-        <div class="panel" style="margin-bottom:16px;padding:14px 18px;background:#fff3e0;border:1px solid #ffb74d;color:#e65100">
+        <div class="panel" style="margin-bottom:16px;padding:14px 18px;background:#fff3e0;border:1px solid #ffb74d;color:#7a3e0c">
             <ul style="margin:0;padding-left:18px">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -61,13 +61,14 @@
 
     <div class="panel table-panel">
         <table>
+            <caption class="sr-only">Comptes utilisateurs</caption>
             <thead>
                 <tr>
-                    <th>Nom</th>
-                    <th>E-mail</th>
-                    <th>Rôle</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">E-mail</th>
+                    <th scope="col">Rôle</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -93,15 +94,15 @@
                                 <form method="post" action="{{ route('back.users.update', $user->getKey()) }}" style="margin-top:12px;display:grid;gap:8px;min-width:260px">
                                     @csrf
                                     @method('PUT')
-                                    <input type="text" name="name" value="{{ $user->name }}" required>
-                                    <input type="email" name="email" value="{{ $user->email }}" required>
-                                    <input type="password" name="password" placeholder="Nouveau mot de passe (optionnel)" minlength="8">
-                                    <select name="role" required>
+                                    <input type="text" name="name" value="{{ $user->name }}" required autocomplete="name" aria-label="Nom de {{ $user->name }}">
+                                    <input type="email" name="email" value="{{ $user->email }}" required autocomplete="email" aria-label="E-mail de {{ $user->name }}">
+                                    <input type="password" name="password" placeholder="Nouveau mot de passe (optionnel)" minlength="8" autocomplete="new-password" aria-label="Nouveau mot de passe de {{ $user->name }}">
+                                    <select name="role" required aria-label="Rôle de {{ $user->name }}">
                                         @foreach($roles as $role)
                                             <option value="{{ $role }}" @selected($user->role === $role)>{{ ucfirst($role) }}</option>
                                         @endforeach
                                     </select>
-                                    <input type="text" name="phone" value="{{ $user->phone }}" placeholder="Téléphone">
+                                    <input type="text" name="phone" value="{{ $user->phone }}" placeholder="Téléphone" autocomplete="tel" aria-label="Téléphone de {{ $user->name }}">
                                     <label><input type="checkbox" name="is_active" value="1" @checked($user->isActive())> Actif (validation administrative)</label>
                                     <button type="submit" class="btn btn-secondary small">Enregistrer</button>
                                 </form>

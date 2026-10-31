@@ -9,6 +9,10 @@ use Illuminate\Support\Collection;
 
 class VetementService
 {
+    public function __construct(private ?NotificationCycleWhatsApp $notifications = null)
+    {
+    }
+
     public function listForOwner(User $user): Collection
     {
         return Vetement::query()
@@ -353,7 +357,15 @@ class VetementService
             'occurred_at' => now(),
         ]);
 
-        return $vetement->fresh(['cycleEvents']);
+        $frais = $vetement->fresh(['cycleEvents', 'owner', 'atelier']) ?? $vetement;
+        $this->notifierCycle()->apresCloture($frais, $status, $eventTitle, $description);
+
+        return $frais;
+    }
+
+    private function notifierCycle(): NotificationCycleWhatsApp
+    {
+        return $this->notifications ??= app(NotificationCycleWhatsApp::class);
     }
 
     public function enregistrerPropositionDon(Vetement $vetement, ?string $associationNom = null): Vetement

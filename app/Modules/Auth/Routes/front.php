@@ -12,3 +12,8 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/deconnexion', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+Route::middleware('citizen')->group(function () {
+    Route::get('/mon-profil', [AuthController::class, 'profil'])->name('profil');
+    Route::put('/mon-profil', [AuthController::class, 'profilUpdate'])->name('profil.update');
+});

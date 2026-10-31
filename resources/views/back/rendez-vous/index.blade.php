@@ -47,15 +47,16 @@
 
     <div class="panel table-panel">
         <table>
+            <caption class="sr-only">Rendez-vous</caption>
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Vêtement</th>
-                    <th>Client</th>
-                    @unless($atelier)<th>Atelier</th>@endunless
-                    <th>Service</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Vêtement</th>
+                    <th scope="col">Client</th>
+                    @unless($atelier)<th scope="col">Atelier</th>@endunless
+                    <th scope="col">Service</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>

@@ -49,6 +49,7 @@ class InscriptionEtValidationTest extends TestCase
             'password' => 'motDePasseSolide',
             'password_confirmation' => 'motDePasseSolide',
             'role' => User::ROLE_CITOYEN,
+            'phone' => '+216 22 123 456',
         ], $override);
     }
 
@@ -57,6 +58,10 @@ class InscriptionEtValidationTest extends TestCase
         foreach (User::ROLES_INSCRIPTION as $role) {
             $validated = $this->resoudre(RegisterRequest::class, $this->payload(['role' => $role]))->validated();
             $this->assertSame($role, $validated['role']);
+            $this->assertSame(
+                $role === User::ROLE_CITOYEN ? '+216 22 123 456' : null,
+                $validated['phone']
+            );
         }
     }
 
@@ -83,7 +88,7 @@ class InscriptionEtValidationTest extends TestCase
         $service = Mockery::mock(UserService::class);
         $service->shouldReceive('create')
             ->once()
-            ->withArgs(fn (array $data) => $data['role'] === User::ROLE_CITOYEN)
+            ->withArgs(fn (array $data) => $data['role'] === User::ROLE_CITOYEN && $data['phone'] === '+216 22 123 456')
             ->andReturn($user);
         $this->app->instance(UserService::class, $service);
 
@@ -105,7 +110,7 @@ class InscriptionEtValidationTest extends TestCase
         $service = Mockery::mock(UserService::class);
         $service->shouldReceive('create')
             ->once()
-            ->withArgs(fn (array $data) => $data['role'] === User::ROLE_ATELIER)
+            ->withArgs(fn (array $data) => $data['role'] === User::ROLE_ATELIER && ($data['phone'] ?? null) === null)
             ->andReturn($user);
         $this->app->instance(UserService::class, $service);
 
@@ -131,7 +136,7 @@ class InscriptionEtValidationTest extends TestCase
         $service = Mockery::mock(UserService::class);
         $service->shouldReceive('create')
             ->once()
-            ->withArgs(fn (array $data) => $data['role'] === User::ROLE_ASSOCIATION)
+            ->withArgs(fn (array $data) => $data['role'] === User::ROLE_ASSOCIATION && ($data['phone'] ?? null) === null)
             ->andReturn($user);
         $this->app->instance(UserService::class, $service);
 

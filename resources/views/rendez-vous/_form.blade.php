@@ -15,10 +15,10 @@
         {{-- Sélection du vêtement --}}
         <label>Vêtement
             @if($vetements->isEmpty())
-                <div style="background:#fff3e0;border:1px solid #ffe0b2;padding:8px 12px;border-radius:6px;font-size:.85rem;color:#e65100;margin-bottom:8px">
-                    <i data-lucide="alert-circle" style="width:14px;height:14px;vertical-align:middle"></i>
+                <div style="background:#fff3e0;border:1px solid #ffe0b2;padding:8px 12px;border-radius:6px;font-size:.85rem;color:#7a3e0c;margin-bottom:8px">
+                    <i data-lucide="alert-circle" aria-hidden="true" style="width:14px;height:14px;vertical-align:middle"></i>
                     Vous n'avez pas encore de vêtement enregistré.
-                    <a href="{{ route('front.vetements') }}" style="color:#e65100;font-weight:600;text-decoration:underline">Créer un vêtement dans "Mes vêtements"</a>
+                    <a href="{{ route('front.vetements') }}" style="color:#7a3e0c;font-weight:600;text-decoration:underline">Créer un vêtement dans « Mes vêtements »</a>
                 </div>
             @endif
             <select name="vetement_id" required>

@@ -1,18 +1,33 @@
-@extends('layouts.front')
+@extends('layouts.trame')
+
+@section('title', 'Mes rendez-vous')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/client-trame.css') }}">
+@endpush
+
+@section('bandeau')
+    <nav class="tr-ariane" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a href="{{ route('front.home') }}">Accueil</a></li>
+            <li><span aria-current="page">Rendez-vous</span></li>
+        </ol>
+    </nav>
+    <div class="tr-bandeau__grille">
+        <div class="tr-bandeau__principal">
+            <h1>Mes rendez-vous</h1>
+            <p class="tr-bandeau__intro">Consultez, modifiez ou annulez vos rendez-vous de réparation.</p>
+        </div>
+        <div class="tr-bandeau__cote">
+            <a href="{{ route('front.rdv.create') }}" class="tr-pilule est-claire">
+                <i data-lucide="plus" aria-hidden="true"></i> Prendre rendez-vous
+            </a>
+        </div>
+    </div>
+@endsection
 
 @section('content')
-<main class="container page-content">
-    {{-- En-tête de page --}}
-    <div class="page-title-row">
-        <div>
-            <p class="kicker">Mon espace citoyen</p>
-            <h1>Mes rendez-vous</h1>
-            <p class="muted">Consultez, modifiez ou annulez vos rendez-vous de réparation.</p>
-        </div>
-        <a href="{{ route('front.rdv.create') }}" class="btn btn-primary">
-            <i data-lucide="plus"></i> Prendre rendez-vous
-        </a>
-    </div>
+<main class="container page-content client-page">
 
     @if($rendezVous->isNotEmpty())
         {{-- Tableau des rendez-vous --}}
@@ -114,13 +129,13 @@
         </div>
     @else
         {{-- Message si aucun rendez-vous --}}
-        <div class="panel" style="padding:32px;text-align:center;color:var(--muted)">
+        <section class="tr-fil vetements-vide" style="padding:8px 0 24px;text-align:left;color:var(--muted)">
             <i data-lucide="calendar-off" style="width:48px;height:48px;margin-bottom:12px;opacity:.4"></i>
             <p>Vous n'avez encore aucun rendez-vous.</p>
             <a href="{{ route('front.rdv.create') }}" class="btn btn-primary" style="margin-top:16px">
                 <i data-lucide="plus"></i> Prendre un rendez-vous
             </a>
-        </div>
+        </section>
     @endif
 </main>
 @endsection

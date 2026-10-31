@@ -19,6 +19,15 @@ Route::middleware('citizen')->group(function () {
     Route::post('/mes-vetements/{vetement}/style', [VetementController::class, 'proposerStylePiece'])
         ->middleware('throttle:6,1')
         ->name('vetements.style.piece');
+    Route::post('/mes-vetements/restyle', [VetementController::class, 'restyler'])
+        ->middleware('throttle:6,1')
+        ->name('vetements.restyle');
+    Route::post('/mes-vetements/restyle/guide', [VetementController::class, 'enregistrerGuide'])
+        ->middleware('throttle:6,1')
+        ->name('vetements.restyle.guide');
+    Route::post('/mes-vetements/{vetement}/restyle', [VetementController::class, 'restylerPiece'])
+        ->middleware('throttle:6,1')
+        ->name('vetements.restyle.piece');
     Route::post('/mes-vetements/{vetement}/analyse-photo', [VetementController::class, 'analyserPiece'])
         ->middleware('throttle:20,1')
         ->name('vetements.analyser.piece');

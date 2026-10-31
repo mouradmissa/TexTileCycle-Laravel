@@ -1,18 +1,34 @@
-@extends('layouts.front')
+@extends('layouts.trame')
+
+@section('title', 'Détail du rendez-vous')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/client-trame.css') }}">
+@endpush
+
+@section('bandeau')
+    <nav class="tr-ariane" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a href="{{ route('front.home') }}">Accueil</a></li>
+            <li><a href="{{ route('front.rdv') }}">Rendez-vous</a></li>
+            <li><span aria-current="page">Détail</span></li>
+        </ol>
+    </nav>
+    <div class="tr-bandeau__grille">
+        <div class="tr-bandeau__principal">
+            <h1>Rendez-vous du {{ $rendezVous->date_rdv ? $rendezVous->date_rdv->format('d/m/Y') : '—' }}</h1>
+            <p class="tr-bandeau__intro">Consultez les informations de votre rendez-vous.</p>
+        </div>
+        <div class="tr-bandeau__cote">
+            <a href="{{ route('front.rdv') }}" class="tr-pilule est-claire">
+                <i data-lucide="arrow-left" aria-hidden="true"></i> Retour à la liste
+            </a>
+        </div>
+    </div>
+@endsection
 
 @section('content')
-<main class="container page-content">
-    {{-- En-tête de page --}}
-    <div class="page-title-row">
-        <div>
-            <p class="kicker">Détail du rendez-vous</p>
-            <h1>Rendez-vous du {{ $rendezVous->date_rdv ? $rendezVous->date_rdv->format('d/m/Y') : '—' }}</h1>
-            <p class="muted">Consultez les informations de votre rendez-vous.</p>
-        </div>
-        <a href="{{ route('front.rdv') }}" class="btn btn-secondary">
-            <i data-lucide="arrow-left"></i> Retour à la liste
-        </a>
-    </div>
+<main class="container page-content client-page">
 
     {{-- Détail complet --}}
     <div class="panel" style="padding:24px;max-width:720px">

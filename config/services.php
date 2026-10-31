@@ -38,6 +38,14 @@ return [
         'openai_model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
     ],
 
+    'whatsapp' => [
+        'token' => env('WHATSAPP_TOKEN'),
+        'phone_id' => env('WHATSAPP_PHONE_ID'),
+        'business_account_id' => env('WHATSAPP_BUSINESS_ACCOUNT_ID'),
+        'from' => env('WHATSAPP_FROM'),
+        'graph_version' => env('WHATSAPP_GRAPH_VERSION', 'v22.0'),
+    ],
+
     'atlas' => [
         'project_id' => env('ATLAS_PROJECT_ID'),
         'public_key' => env('ATLAS_PUBLIC_KEY'),

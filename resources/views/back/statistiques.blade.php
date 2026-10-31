@@ -80,7 +80,7 @@
                     <p>12 derniers mois — pointillés : prévision IA sur 3 mois</p>
                 </div>
             </div>
-            <div class="chart-box"><canvas id="chartActivite"></canvas></div>
+            <div class="chart-box"><canvas id="chartActivite" role="img" aria-label="Graphique de l'activité mensuelle et des prévisions. Les chiffres figurent dans le tableau Historique consolidé."></canvas></div>
         </div>
 
         <div class="panel ai-panel">
@@ -120,7 +120,7 @@
                     <p>CO₂ évité (kg) et eau économisée (L)</p>
                 </div>
             </div>
-            <div class="chart-box"><canvas id="chartImpact"></canvas></div>
+            <div class="chart-box"><canvas id="chartImpact" role="img" aria-label="Graphique de l'impact écologique mensuel : CO₂ évité et eau économisée. Les chiffres figurent dans le tableau Historique consolidé."></canvas></div>
         </div>
         <div class="panel chart-panel">
             <div class="panel-head">
@@ -130,8 +130,8 @@
                 </div>
             </div>
             <div class="grid-2" style="margin:0;gap:0">
-                <div class="chart-box small"><canvas id="chartStatuts"></canvas></div>
-                <div class="chart-box small"><canvas id="chartTypes"></canvas></div>
+                <div class="chart-box small"><canvas id="chartStatuts" role="img" aria-label="Graphique de la répartition des vêtements par statut."></canvas></div>
+                <div class="chart-box small"><canvas id="chartTypes" role="img" aria-label="Graphique des types de vêtements les plus déclarés."></canvas></div>
             </div>
         </div>
     </div>
@@ -140,17 +140,18 @@
     <h2 class="section-title">Historique consolidé</h2>
     <div class="panel table-panel">
         <table>
+            <caption class="sr-only">Historique consolidé de l'activité</caption>
             <thead>
                 <tr>
-                    <th>Période</th>
-                    <th>Vêtements</th>
-                    <th>Réparations</th>
-                    <th>Dons</th>
-                    <th>Nouveaux inscrits</th>
-                    <th>Ateliers actifs</th>
-                    <th>Vêtements sauvés</th>
-                    <th>CO₂ évité</th>
-                    <th>Eau économisée</th>
+                    <th scope="col">Période</th>
+                    <th scope="col">Vêtements</th>
+                    <th scope="col">Réparations</th>
+                    <th scope="col">Dons</th>
+                    <th scope="col">Nouveaux inscrits</th>
+                    <th scope="col">Ateliers actifs</th>
+                    <th scope="col">Vêtements sauvés</th>
+                    <th scope="col">CO₂ évité</th>
+                    <th scope="col">Eau économisée</th>
                 </tr>
             </thead>
             <tbody>
@@ -189,7 +190,8 @@
             pondérée selon la valorisation : réparation et don {{ $facteurs['reparation'] * 100 }} %, recyclage {{ $facteurs['recyclage'] * 100 }} %.
         </p>
         <table class="method-table">
-            <thead><tr><th>Type de vêtement</th><th>CO₂ (kg)</th><th>Eau (L)</th></tr></thead>
+            <caption class="sr-only">Empreinte de production évitée par type de vêtement</caption>
+            <thead><tr><th scope="col">Type de vêtement</th><th scope="col">CO₂ (kg)</th><th scope="col">Eau (L)</th></tr></thead>
             <tbody>
                 @foreach($coefficients as $type => [$c, $e])
                     <tr><td>{{ ucfirst($type) }}</td><td>{{ $fmt($c, 1) }}</td><td>{{ $fmt($e) }}</td></tr>

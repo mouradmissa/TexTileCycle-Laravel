@@ -104,7 +104,7 @@ class EmailNormalisationTest extends TestCase
 
         $this->assertSame('nouveau.compte@example.test', $this->resoudre(StoreUserRequest::class, $this->donnees($brut))->validated()['email']);
         $this->assertSame('nouveau.compte@example.test', $this->resoudre(UpdateUserRequest::class, $this->donnees($brut), self::ID_MODIFIE)->validated()['email']);
-        $this->assertSame('nouveau.compte@example.test', $this->resoudre(RegisterRequest::class, $this->donnees($brut, ['role' => User::ROLE_CITOYEN]))->validated()['email']);
+        $this->assertSame('nouveau.compte@example.test', $this->resoudre(RegisterRequest::class, $this->donnees($brut, ['role' => User::ROLE_CITOYEN, 'phone' => '+216 22 123 456']))->validated()['email']);
     }
 
     public function test_un_email_absent_ou_non_textuel_n_est_pas_transforme(): void

@@ -1,24 +1,39 @@
-@extends('layouts.front')
+@extends('layouts.trame')
 
-@section('content')
-<main class="page-content container" style="padding:40px 0 64px">
-    <div class="page-title-row">
-        <div>
-            <p class="kicker">Modération</p>
+@section('title', 'Mes signalements')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/client-trame.css') }}">
+@endpush
+
+@section('bandeau')
+    <nav class="tr-ariane" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a href="{{ route('front.home') }}">Accueil</a></li>
+            <li><span aria-current="page">Mes signalements</span></li>
+        </ol>
+    </nav>
+    <div class="tr-bandeau__grille">
+        <div class="tr-bandeau__principal">
             <h1>Mes signalements</h1>
-            <p class="muted">Suivez le traitement des contenus que vous avez signalés à l'équipe TexTileCycle.</p>
+            <p class="tr-bandeau__intro">Suivez le traitement des contenus que vous avez signalés à l'équipe TexTileCycle.</p>
         </div>
     </div>
+@endsection
+
+@section('content')
+<main class="page-content container client-page">
 
     <div class="panel table-panel" style="margin-top:20px">
         <table>
+            <caption class="sr-only">Mes signalements</caption>
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Élément signalé</th>
-                    <th>Motif</th>
-                    <th>Statut</th>
-                    <th>Réponse de l'équipe</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Élément signalé</th>
+                    <th scope="col">Motif</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Réponse de l'équipe</th>
                 </tr>
             </thead>
             <tbody>

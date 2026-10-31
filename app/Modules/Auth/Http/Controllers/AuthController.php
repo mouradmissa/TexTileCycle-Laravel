@@ -4,6 +4,7 @@ namespace App\Modules\Auth\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Auth\Http\Requests\LoginRequest;
+use App\Modules\Auth\Http\Requests\ProfilCitoyenRequest;
 use App\Modules\Auth\Http\Requests\RegisterRequest;
 use App\Modules\Auth\Services\RoleNavigationService;
 use App\Modules\Auth\Services\UserService;
@@ -67,6 +68,23 @@ class AuthController extends Controller
 
         return redirect(RoleNavigationService::redirectAfterLogin($user))
             ->with('success', 'Bienvenue sur TexTileCycle, '.$user->name.' !');
+    }
+
+    public function profil()
+    {
+        $user = auth()->user();
+        abort_unless($user && $user->isCitoyen(), 403, 'Cette page est réservée aux comptes client.');
+
+        return view('front.profil', ['user' => $user]);
+    }
+
+    public function profilUpdate(ProfilCitoyenRequest $request)
+    {
+        $this->users->mettreAJourProfil($request->user(), $request->validated());
+
+        return redirect()
+            ->route('front.profil')
+            ->with('success', 'Vos informations ont été enregistrées.');
     }
 
     public function logout(Request $request)

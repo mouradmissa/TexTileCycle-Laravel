@@ -8,14 +8,20 @@
     </nav>
 
     <div class="tr-compte">
-        <button type="button" class="tr-langue" aria-label="Langue : français">
-            <i data-lucide="globe"></i> FR
-        </button>
+        <span class="tr-langue">
+            <i data-lucide="globe" aria-hidden="true"></i>
+            <span lang="fr">FR</span>
+            <span class="tr-sr">Langue du site : français</span>
+        </span>
         @auth
             @if(auth()->user()->canAccessBackOffice())
                 <a href="{{ route('back.dashboard') }}" class="tr-lien-compte">Espace professionnel</a>
             @endif
-            <span class="tr-utilisateur">{{ auth()->user()->name }}</span>
+            @if(auth()->user()->isCitoyen())
+                <a href="{{ route('front.profil') }}" class="tr-utilisateur" aria-label="Profil de {{ auth()->user()->name }}" @if(request()->routeIs('front.profil')) aria-current="page" @endif>{{ auth()->user()->name }}</a>
+            @else
+                <span class="tr-utilisateur">{{ auth()->user()->name }}</span>
+            @endif
             <form method="post" action="{{ route('front.logout') }}" class="tr-form">
                 @csrf
                 <button type="submit" class="tr-pilule">Déconnexion</button>

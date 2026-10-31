@@ -48,6 +48,24 @@ class UserService
         return $user;
     }
 
+    /**
+     * Le citoyen met à jour son nom, son e-mail, son téléphone et, s'il le souhaite, son mot de passe.
+     */
+    public function mettreAJourProfil(User $user, array $data): User
+    {
+        $user->name = $data['name'];
+        $user->email = mb_strtolower($data['email']);
+        $user->phone = $data['phone'];
+
+        if (! empty($data['password'])) {
+            $user->password = $data['password'];
+        }
+
+        $user->save();
+
+        return $user;
+    }
+
     public function delete(User $user): void
     {
         $user->delete();

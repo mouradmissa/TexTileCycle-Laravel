@@ -1,22 +1,39 @@
-@extends('layouts.front')
+@extends('layouts.trame')
 
-@section('title', 'Historique du cycle de vie — TexTileCycle')
+@section('title', 'Historique du cycle de vie')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/vetements-trame.css') }}">
+@endpush
+
+@section('bandeau')
+    <nav class="tr-ariane" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a href="{{ route('front.home') }}">Accueil</a></li>
+            <li><a href="{{ route('front.vetements') }}">Mes vêtements</a></li>
+            <li><span aria-current="page">Historique</span></li>
+        </ol>
+    </nav>
+    <div class="tr-bandeau__grille">
+        <div class="tr-bandeau__principal">
+            <h1>Cycle de vie</h1>
+            <p class="tr-bandeau__intro">Historique complet de vos vêtements après une réparation validée ou un don accepté.</p>
+        </div>
+        <div class="tr-bandeau__cote">
+            <a href="{{ route('front.vetements') }}" class="tr-pilule est-claire">
+                <i data-lucide="shirt" aria-hidden="true"></i> Mes vêtements
+            </a>
+        </div>
+    </div>
+@endsection
 
 @section('content')
-<main class="container page-content">
-    <div class="page-title-row">
-        <div>
-            <p class="kicker">Mon espace citoyen</p>
-            <h1>Cycle de vie</h1>
-            <p class="muted">Historique complet de vos vêtements après une réparation validée ou un don accepté.</p>
-        </div>
-        <a href="{{ route('front.vetements') }}" class="btn btn-secondary"><i data-lucide="shirt"></i> Mes vêtements</a>
-    </div>
-
+<main class="container page-content historique-page">
     <div class="history-filters" role="navigation" aria-label="Filtrer l'historique">
         @foreach($filtres as $valeur => $libelle)
             <a href="{{ $valeur === '' ? route('front.historique') : route('front.historique', ['statut' => $valeur]) }}"
-               class="history-filter {{ ($filtre ?: '') === $valeur ? 'is-active' : '' }}">
+               class="history-filter {{ ($filtre ?: '') === $valeur ? 'is-active' : '' }}"
+               @if(($filtre ?: '') === $valeur) aria-current="page" @endif>
                 {{ $libelle }}
             </a>
         @endforeach
@@ -71,15 +88,17 @@
                 </ol>
             </article>
         @empty
-            <div class="panel history-empty">
-                <i data-lucide="history"></i>
-                <h2>Aucun cycle clôturé pour le moment</h2>
-                <p>Dès qu'un atelier valide une réparation ou qu'une association accepte un don, la pièce apparaît ici avec tout son historique.</p>
-                <a href="{{ route('front.vetements') }}" class="btn btn-primary"><i data-lucide="plus"></i> Déclarer un vêtement</a>
-            </div>
+            <section class="tr-fil vetements-vide" aria-labelledby="historique-vide">
+                <i data-lucide="history" aria-hidden="true"></i>
+                <h2 id="historique-vide">Aucun cycle clôturé pour le moment</h2>
+                <p class="muted">Dès qu'un atelier valide une réparation ou qu'une association accepte un don, la pièce apparaît ici avec tout son historique.</p>
+                <p><a href="{{ route('front.vetements') }}" class="btn btn-primary"><i data-lucide="plus" aria-hidden="true"></i> Déclarer un vêtement</a></p>
+            </section>
         @endforelse
     </div>
 </main>
-
-<x-clothing-chat :disponible="$chatDisponible" />
 @endsection
+
+@push('overlays')
+    <x-clothing-chat :disponible="$chatDisponible" />
+@endpush

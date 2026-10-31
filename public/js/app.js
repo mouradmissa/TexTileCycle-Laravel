@@ -4,17 +4,58 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuBtn = document.querySelector('[data-mobile-menu]');
   const nav = document.querySelector('[data-front-nav]');
   if (menuBtn && nav) {
-    menuBtn.addEventListener('click', () => nav.classList.toggle('open'));
+    menuBtn.addEventListener('click', () => {
+      const ouvert = nav.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+      menuBtn.setAttribute('aria-label', ouvert ? 'Fermer le menu' : 'Ouvrir le menu');
+    });
   }
 
+  const visible = (el) => el
+    && !el.hidden
+    && !el.disabled
+    && el.getAttribute('aria-hidden') !== 'true'
+    && el.getClientRects().length > 0;
+
+  const focusables = (racine) => [...racine.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+  )].filter(visible);
+
+  const premierChamp = (dialogue) => {
+    if (!dialogue) return null;
+    return [...dialogue.querySelectorAll('input, select, textarea')].find(visible)
+      || focusables(dialogue)[0]
+      || dialogue;
+  };
+
+  const donnerFocus = (el) => {
+    if (!el) return;
+    if (!el.matches('a[href], button, input, select, textarea')) {
+      el.setAttribute('tabindex', '-1');
+    }
+    setTimeout(() => el.focus(), 0);
+  };
+
+  let retourFocus = null;
+
+  const dialogueDe = (backdrop) => backdrop?.querySelector('[role="dialog"]') || backdrop;
+
   const closeModal = (backdrop) => {
-    backdrop?.classList.remove('open');
-    backdrop?.setAttribute('aria-hidden', 'true');
+    if (!backdrop) return;
+    backdrop.classList.remove('open');
+    backdrop.setAttribute('aria-hidden', 'true');
+    if (retourFocus && typeof retourFocus.focus === 'function') {
+      retourFocus.focus();
+    }
+    retourFocus = null;
   };
 
   const openModal = (backdrop) => {
-    backdrop?.classList.add('open');
-    backdrop?.setAttribute('aria-hidden', 'false');
+    if (!backdrop) return;
+    retourFocus = document.activeElement;
+    backdrop.classList.add('open');
+    backdrop.setAttribute('aria-hidden', 'false');
+    donnerFocus(premierChamp(dialogueDe(backdrop)));
   };
 
   document.querySelectorAll('[data-open-modal]').forEach((btn) => {
@@ -34,6 +75,34 @@ document.addEventListener('DOMContentLoaded', () => {
     backdrop.addEventListener('click', (e) => {
       if (e.target === backdrop) closeModal(backdrop);
     });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const ouvert = document.querySelector('.modal-backdrop.open');
+    if (!ouvert) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeModal(ouvert);
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    const els = focusables(dialogueDe(ouvert));
+    if (!els.length) return;
+    const premier = els[0];
+    const dernier = els[els.length - 1];
+    if (e.shiftKey && document.activeElement === premier) {
+      e.preventDefault();
+      dernier.focus();
+    } else if (!e.shiftKey && document.activeElement === dernier) {
+      e.preventDefault();
+      premier.focus();
+    }
+  });
+
+  document.querySelectorAll('.modal-backdrop.open').forEach((backdrop) => {
+    const dialogue = dialogueDe(backdrop);
+    const invalide = [...(dialogue?.querySelectorAll('[aria-invalid="true"]') || [])].find(visible);
+    donnerFocus(invalide || premierChamp(dialogue));
   });
 
   document.querySelectorAll('[data-condition-radios], [data-action-radios]').forEach((group) => {

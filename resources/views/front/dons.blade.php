@@ -1,20 +1,35 @@
-@extends('layouts.front')
+@extends('layouts.trame')
 
-@section('title', 'Proposer un don — TexTileCycle')
+@section('title', 'Proposer un don')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/client-trame.css') }}">
+@endpush
+
+@section('bandeau')
+    <nav class="tr-ariane" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a href="{{ route('front.home') }}">Accueil</a></li>
+            <li><a href="{{ route('front.associations') }}">Associations</a></li>
+            <li><span aria-current="page">Dons</span></li>
+        </ol>
+    </nav>
+    <div class="tr-bandeau__grille">
+        <div class="tr-bandeau__principal">
+            <h1>Proposer un don</h1>
+            <p class="tr-bandeau__intro">Donnez une seconde vie à vos vêtements en les offrant à ceux qui en ont besoin.</p>
+        </div>
+        <div class="tr-bandeau__cote">
+            <button type="button" class="tr-pilule est-claire" data-open-modal="don-modal"
+                @disabled($vetements->isEmpty() || $associations->isEmpty())>
+                <i data-lucide="gift" aria-hidden="true"></i> Nouveau don
+            </button>
+        </div>
+    </div>
+@endsection
 
 @section('content')
-<main class="container page-content">
-    <div class="page-title-row">
-        <div>
-            <p class="kicker">Économie circulaire</p>
-            <h1>Proposer un don</h1>
-            <p class="muted">Donnez une seconde vie à vos vêtements en les offrant à ceux qui en ont besoin.</p>
-        </div>
-        <button type="button" class="btn btn-primary" data-open-modal="don-modal"
-            {{ ($vetements->isEmpty() || $associations->isEmpty()) ? 'disabled' : '' }}>
-            <i data-lucide="gift"></i> Nouveau don
-        </button>
-    </div>
+<main class="container page-content client-page">
 
     {{-- Associations avec leurs besoins --}}
     @if($associations->isNotEmpty())
@@ -54,14 +69,15 @@
             <h2 class="section-title"><i data-lucide="clock"></i> Mes propositions de don</h2>
             <div class="panel table-panel">
                 <table>
+                    <caption class="sr-only">Mes propositions de don</caption>
                     <thead>
                         <tr>
-                            <th>Vêtement</th>
-                            <th>Association</th>
-                            <th>Message</th>
-                            <th>Statut</th>
-                            <th>Date</th>
-                            <th></th>
+                            <th scope="col">Vêtement</th>
+                            <th scope="col">Association</th>
+                            <th scope="col">Message</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">Date</th>
+                            <th scope="col"><span class="sr-only">Actions</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,20 +95,20 @@
                                 <td>
                                     @if($don->isPending())
                                         <div style="display: flex; gap: 8px;">
-                                            <button type="button" class="icon-btn edit-don-btn" title="Modifier"
+                                            <button type="button" class="icon-btn edit-don-btn" aria-label="Modifier le don de {{ $don->vetement?->displayName() ?? 'ce vêtement' }}"
                                                     data-id="{{ $don->_id }}"
                                                     data-vetement="{{ $don->vetement_id }}"
                                                     data-association="{{ $don->association_id }}"
                                                     data-message="{{ $don->message }}"
                                                     data-open-modal="don-modal">
-                                                <i data-lucide="edit-2"></i>
+                                                <i data-lucide="edit-2" aria-hidden="true"></i>
                                             </button>
                                             <form method="POST"
                                                   action="{{ route('front.dons.destroy', $don->_id) }}"
                                                   onsubmit="return confirm('Annuler cette proposition ?')">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="icon-btn danger" title="Annuler">
-                                                    <i data-lucide="x"></i>
+                                                <button type="submit" class="icon-btn danger" aria-label="Annuler le don de {{ $don->vetement?->displayName() ?? 'ce vêtement' }}">
+                                                    <i data-lucide="x" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         </div>
@@ -117,8 +133,9 @@
     @endif
 
 </main>
+@endsection
 
-{{-- ══════════════ MODAL DON (même style que clothing-modal) ══════════════ --}}
+@push('overlays')
 <div class="modal-backdrop" id="don-modal" aria-hidden="true">
     <div class="modal" role="dialog" aria-labelledby="don-modal-title">
         <div class="modal-head">
@@ -217,7 +234,9 @@
         </form>
     </div>
 </div>
+@endpush
 
+@push('scripts')
 <script>
 // Activer la radio card vetement
 document.addEventListener('change', e => {
@@ -317,4 +336,4 @@ document.querySelectorAll('.edit-don-btn').forEach(btn => {
     });
 @endif
 </script>
-@endsection
+@endpush

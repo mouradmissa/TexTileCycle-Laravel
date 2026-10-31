@@ -1,4 +1,10 @@
-@extends('layouts.front')
+@extends('layouts.trame')
+
+@section('title', 'Prendre rendez-vous')
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/client-trame.css') }}">
+@endpush
 
 @php
     $atelierNom = $ateliers[$atelierPreselect ?? ''] ?? null;
@@ -8,19 +14,28 @@
     }
 @endphp
 
-@section('content')
-<main class="container page-content">
-    <div class="page-title-row">
-        <div>
-            <p class="kicker">Planifier une réparation</p>
+@section('bandeau')
+    <nav class="tr-ariane" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a href="{{ route('front.home') }}">Accueil</a></li>
+            <li><a href="{{ route('front.rdv') }}">Rendez-vous</a></li>
+            <li><span aria-current="page">Nouveau</span></li>
+        </ol>
+    </nav>
+    <div class="tr-bandeau__grille">
+        <div class="tr-bandeau__principal">
             <h1>Prendre rendez-vous</h1>
             @if($vetementNom || $atelierNom)
-                <p class="muted">Complétez la date, la durée et un commentaire : le vêtement et l'atelier sont déjà renseignés.</p>
+                <p class="tr-bandeau__intro">Complétez la date, la durée et un commentaire : le vêtement et l'atelier sont déjà renseignés.</p>
             @else
-                <p class="muted">Choisissez votre vêtement, l'atelier et un créneau disponible.</p>
+                <p class="tr-bandeau__intro">Choisissez votre vêtement, l'atelier et un créneau disponible.</p>
             @endif
         </div>
     </div>
+@endsection
+
+@section('content')
+<main class="container page-content client-page">
 
     @if($vetementNom || $atelierNom)
         <div class="ai-banner">

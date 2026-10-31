@@ -189,6 +189,13 @@
   white-space: nowrap;
 }
 
+a.tr-utilisateur {
+  color: var(--tr-doux);
+  text-decoration: none;
+}
+
+a.tr-utilisateur:hover { color: #fff; }
+
 .tr-lien-compte {
   font-size: 13px;
   font-weight: 600;
@@ -244,6 +251,10 @@
 }
 
 .tr-nav .tr-langue svg { width: 14px; height: 14px; }
+
+span.tr-langue { cursor: default; }
+span.tr-langue:hover,
+span.tr-langue:active { transform: none; }
 
 .tr-langue:hover,
 .tr-pilule:hover { border-color: rgb(255 255 255 / .6); }

@@ -27,15 +27,16 @@
     {{-- Table --}}
     <div class="panel table-panel">
         <table>
+            <caption class="sr-only">Associations</caption>
             <thead>
                 <tr>
-                    <th>Association</th>
-                    <th>Adresse</th>
-                    <th>Téléphone</th>
-                    <th>Besoins</th>
-                    <th>Statut</th>
-                    <th>Créée le</th>
-                    <th></th>
+                    <th scope="col">Association</th>
+                    <th scope="col">Adresse</th>
+                    <th scope="col">Téléphone</th>
+                    <th scope="col">Besoins</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Créée le</th>
+                    <th scope="col"><span class="sr-only">Actions</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -77,16 +78,16 @@
                         <td>
                             <div class="action-row">
                                 <a href="{{ route('back.associations.edit', $asso->_id) }}"
-                                   class="icon-btn" title="Modifier">
-                                    <i data-lucide="pencil"></i>
+                                   class="icon-btn" aria-label="Modifier {{ $asso->nom }}">
+                                    <i data-lucide="pencil" aria-hidden="true"></i>
                                 </a>
                                 @if(auth()->user()?->isAdmin())
                                 <form method="POST"
                                       action="{{ route('back.associations.destroy', $asso->_id) }}"
                                       onsubmit="return confirm('Supprimer « {{ $asso->nom }} » ?')">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="icon-btn danger" title="Supprimer">
-                                        <i data-lucide="trash-2"></i>
+                                    <button type="submit" class="icon-btn danger" aria-label="Supprimer {{ $asso->nom }}">
+                                        <i data-lucide="trash-2" aria-hidden="true"></i>
                                     </button>
                                 </form>
                                 @endif
