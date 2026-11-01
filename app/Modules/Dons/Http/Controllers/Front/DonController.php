@@ -5,6 +5,8 @@ namespace App\Modules\Dons\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Modules\Associations\Models\Association;
 use App\Modules\Dons\Models\Don;
+use App\Modules\Dons\Services\MatchingDonService;
+use App\Modules\Dons\Services\PreControleDonService;
 use App\Modules\Vetements\Models\Vetement;
 use App\Modules\Vetements\Services\VetementService;
 use Illuminate\Http\Request;
@@ -12,7 +14,9 @@ use Illuminate\Http\Request;
 class DonController extends Controller
 {
     public function __construct(
-        private VetementService $vetements
+        private VetementService $vetements,
+        private MatchingDonService $matching,
+        private PreControleDonService $preControle
     ) {
     }
 
@@ -42,6 +46,35 @@ class DonController extends Controller
             'dons'         => $dons,
             'donation'     => true,
         ]);
+    }
+
+    /** Top 3 des associations les plus adaptées à un vêtement du citoyen (JSON). */
+    public function matching(string $vetementId)
+    {
+        $vetement = Vetement::where('_id', $vetementId)
+            ->where('user_id', auth()->user()->_id)
+            ->firstOrFail();
+
+        $associations = Association::where('statut', Association::STATUT_ACTIF)->get();
+
+        return response()->json([
+            'classement' => $this->matching->classer($vetement, $associations),
+            'top' => $this->matching->topTrois($vetement, $associations),
+        ]);
+    }
+
+    /** Pré-contrôle d'un don avant l'envoi (JSON, informatif : ne bloque jamais). */
+    public function preControle(string $vetementId, string $associationId)
+    {
+        $vetement = Vetement::where('_id', $vetementId)
+            ->where('user_id', auth()->user()->_id)
+            ->firstOrFail();
+
+        $associations = Association::where('statut', Association::STATUT_ACTIF)->get();
+        $association = $associations->firstWhere('_id', $associationId);
+        abort_if($association === null, 404);
+
+        return response()->json($this->preControle->verifier($vetement, $association, $associations));
     }
 
     /** Soumettre une proposition de don. */

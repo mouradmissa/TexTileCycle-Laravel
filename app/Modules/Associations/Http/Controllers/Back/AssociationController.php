@@ -5,6 +5,7 @@ namespace App\Modules\Associations\Http\Controllers\Back;
 use App\Http\Controllers\Controller;
 use App\Modules\Associations\Models\Association;
 use App\Modules\Associations\Services\AssociationService;
+use App\Modules\Associations\Services\BesoinsTexteLibreService;
 use App\Modules\Auth\Models\User;
 use App\Modules\Auth\Services\UserService;
 use App\Modules\Core\Http\Controllers\Concerns\RendersBackOffice;
@@ -16,8 +17,23 @@ class AssociationController extends Controller
     use RendersBackOffice;
 
     public function __construct(
-        private AssociationService $associations
+        private AssociationService $associations,
+        private BesoinsTexteLibreService $besoinsTexte
     ) {
+    }
+
+    /** Convertit une description libre en lignes de besoins (JSON). Rien n'est enregistré. */
+    public function besoinsDepuisTexte(Request $request)
+    {
+        $data = $request->validate([
+            'texte' => [
+                'required', 'string',
+                'min:'.BesoinsTexteLibreService::LONGUEUR_MIN,
+                'max:'.BesoinsTexteLibreService::LONGUEUR_MAX,
+            ],
+        ]);
+
+        return response()->json($this->besoinsTexte->extraire($data['texte']));
     }
 
     public function index(Request $request)

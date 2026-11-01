@@ -38,7 +38,7 @@
                         <div class="association-logo">
                             <i data-lucide="heart-handshake"></i>
                         </div>
-                        <x-status-badge tone="purple">{{ $asso->matchScore() }}% match</x-status-badge>
+                        <x-status-badge tone="purple">{{ count($asso->besoins ?? []) }} besoin(s)</x-status-badge>
                     </div>
                     <h3>{{ $asso->nom }}</h3>
                     <p class="muted small">{{ Str::limit($asso->description, 100) }}</p>
