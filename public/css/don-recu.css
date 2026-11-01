@@ -1,0 +1,107 @@
+/* Reçu de don (page autonome, faite pour l'impression et l'enregistrement en PDF). */
+
+:root {
+  --dr-encre: #10251b;
+  --dr-doux: #5b6b62;
+  --dr-vert: #2e7d32;
+  --dr-filet: #c9d6cd;
+  --dr-fond: #eef3ef;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--dr-fond);
+  color: var(--dr-encre);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.dr-page {
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+  padding: 24px 16px 40px;
+}
+
+.dr-barre {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.dr-lien { color: var(--dr-vert); font-weight: 600; text-decoration: none; }
+.dr-aide, .dr-petit { margin: 0; font-size: 13px; color: var(--dr-doux); }
+
+.dr-bouton {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 22px;
+  background: var(--dr-vert);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dr-recu {
+  width: min(680px, 100%);
+  background: #fff;
+  border: 1px solid var(--dr-filet);
+  border-radius: 16px;
+  padding: 32px;
+}
+
+.dr-tete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--dr-vert);
+}
+
+.dr-kicker {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--dr-vert);
+}
+
+.dr-tete h1, .dr-verif h1 { margin: 0; font-size: 26px; }
+.dr-numero { margin: 6px 0 0; font-weight: 700; color: var(--dr-doux); }
+
+.dr-qr svg { display: block; width: 130px; height: 130px; }
+
+.dr-bloc { padding: 18px 0; border-bottom: 1px solid var(--dr-filet); }
+
+.dr-bloc h2 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--dr-doux);
+}
+
+dl { margin: 0; display: grid; gap: 6px; }
+dl > div { display: flex; gap: 12px; }
+dt { min-width: 120px; color: var(--dr-doux); }
+dd { margin: 0; font-weight: 600; }
+
+.dr-pied { padding-top: 18px; text-align: center; }
+.dr-pied p { margin: 0 0 6px; }
+
+.dr-verif { text-align: center; }
+.dr-verif dl > div { justify-content: center; }
+.dr-verif.is-valide h1 { color: var(--dr-vert); }
+.dr-verif.is-invalide h1 { color: #b3261e; }
+
+@media print {
+  body { background: #fff; }
+  .dr-barre { display: none; }
+  .dr-page { padding: 0; }
+  .dr-recu { border: 0; width: 100%; }
+}

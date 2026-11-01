@@ -26,6 +26,7 @@ class EnsureAssociationHasCreatedFiche
         if (in_array($route, [
             'back.associations.create',
             'back.associations.store',
+            'back.associations.besoins-ia',
         ], true)) {
             return $next($request);
         }

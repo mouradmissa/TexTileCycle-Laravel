@@ -40,7 +40,7 @@
                     <article class="association-card clickable" data-asso-id="{{ $asso->_id }}">
                         <div class="association-head">
                             <div class="association-logo"><i data-lucide="heart-handshake"></i></div>
-                            <x-status-badge tone="purple">{{ $asso->matchScore() }}% match</x-status-badge>
+                            <x-status-badge tone="purple">{{ count($asso->besoins ?? []) }} besoin(s)</x-status-badge>
                         </div>
                         <h3>{{ $asso->nom }}</h3>
                         <p class="muted small">{{ Str::limit($asso->description, 80) }}</p>
@@ -112,6 +112,11 @@
                                                 </button>
                                             </form>
                                         </div>
+                                    @elseif($don->statut === \App\Modules\Dons\Models\Don::STATUT_ACCEPTE)
+                                        <a href="{{ route('front.dons.recu', $don->_id) }}" target="_blank" rel="noopener" class="btn btn-secondary small"
+                                           aria-label="Télécharger le reçu du don de {{ $don->vetement?->displayName() ?? 'ce vêtement' }}">
+                                            <i data-lucide="file-text" aria-hidden="true"></i> Reçu
+                                        </a>
                                     @endif
                                 </td>
                             </tr>
@@ -187,6 +192,12 @@
                 @endif
             </fieldset>
 
+            {{-- Top 3 IA : rempli quand un vêtement est choisi --}}
+            <section id="match-panel" class="match-panel" aria-live="polite" hidden>
+                <h3 class="match-panel__titre"><i data-lucide="sparkles" aria-hidden="true"></i> Associations recommandées</h3>
+                <ol id="match-liste" class="match-liste"></ol>
+            </section>
+
             {{-- Sélection de l'association --}}
             <fieldset class="field" style="border:0;padding:0;margin:0 0 16px">
                 <legend style="margin-bottom:8px;font-size:13px;font-weight:600">
@@ -206,9 +217,10 @@
                                     @checked(old('association_id', request('association')) === (string)$asso->_id) required>
                                 <i data-lucide="heart-handshake"></i>
                                 <strong>{{ $asso->nom }}</strong>
-                                <span>{{ $asso->matchScore() }}% match
+                                <span>
+                                    <b class="match-score" data-score-for="{{ $asso->_id }}"></b>
                                     @if(!empty($asso->besoins))
-                                        · {{ $asso->besoins[0]['type'] ?? '' }}
+                                        {{ $asso->besoins[0]['type'] ?? '' }}
                                     @endif
                                 </span>
                             </label>
@@ -217,6 +229,9 @@
                     @error('association_id')<span class="form-error" style="margin-top:6px;display:block">{{ $message }}</span>@enderror
                 @endif
             </fieldset>
+
+            {{-- Pré-contrôle IA : rempli quand un vêtement ET une association sont choisis --}}
+            <section id="precontrole-panel" class="precontrole" aria-live="polite" hidden></section>
 
             {{-- Message optionnel --}}
             <label>Message d'accompagnement <small class="field-hint">(optionnel)</small>
@@ -323,6 +338,118 @@ document.querySelectorAll('.edit-don-btn').forEach(btn => {
             msgTextarea.value = message || '';
         }
     });
+});
+
+
+// ── Matching IA : Top 3 + score par association selon le vêtement choisi ──
+const MATCH_URL = "{{ url('dons/matching') }}/";
+let matchRequete = 0;
+
+function echapper(t) {
+    const d = document.createElement('div');
+    d.textContent = t ?? '';
+    return d.innerHTML;
+}
+
+async function chargerMatching(vetementId) {
+    const panneau = document.getElementById('match-panel');
+    const liste = document.getElementById('match-liste');
+    if (!panneau || !liste || !vetementId) return;
+
+    const numero = ++matchRequete;
+    panneau.hidden = false;
+    liste.innerHTML = '<li class="match-chargement">Analyse des besoins des associations…</li>';
+
+    try {
+        const reponse = await fetch(MATCH_URL + encodeURIComponent(vetementId), {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+        });
+        if (!reponse.ok) throw new Error('HTTP ' + reponse.status);
+        const data = await reponse.json();
+        if (numero !== matchRequete) return;
+
+        document.querySelectorAll('.match-score').forEach(el => { el.textContent = ''; });
+        (data.classement || []).forEach(m => {
+            const el = document.querySelector(`.match-score[data-score-for="${m.association_id}"]`);
+            if (el) el.textContent = m.score + '% · ';
+        });
+
+        liste.innerHTML = (data.top || []).map(m => `
+            <li class="match-item">
+                <div class="match-item__tete"><strong>${echapper(m.nom)}</strong><span class="match-item__score">${m.score}%</span></div>
+                <p class="match-item__phrase">${echapper(m.phrase)}</p>
+                <button type="button" class="btn btn-secondary match-choisir" data-asso="${echapper(m.association_id)}">Choisir cette association</button>
+            </li>`).join('') || '<li class="match-chargement">Aucune association active.</li>';
+    } catch (e) {
+        if (numero === matchRequete) panneau.hidden = true;
+    }
+}
+
+document.addEventListener('change', e => {
+    if (e.target.name === 'vetement_id') chargerMatching(e.target.value);
+});
+
+document.addEventListener('click', e => {
+    const bouton = e.target.closest('.match-choisir');
+    if (!bouton) return;
+    const radio = document.querySelector(`[data-asso-radio="${bouton.dataset.asso}"] input`);
+    if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+        radio.closest('.action-choice')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+});
+
+// Vêtement déjà coché à l'ouverture (?vetement=… ou ancienne saisie)
+document.addEventListener('DOMContentLoaded', () => {
+    const coche = document.querySelector('input[name="vetement_id"]:checked');
+    if (coche) chargerMatching(coche.value);
+});
+
+// ── Pré-contrôle du don : avis avant l'envoi (informatif, ne bloque rien) ──
+const PRECONTROLE_URL = "{{ url('dons/precontrole') }}/";
+let precontroleRequete = 0;
+
+async function majPrecontrole() {
+    const panneau = document.getElementById('precontrole-panel');
+    const vet = document.querySelector('input[name="vetement_id"]:checked')?.value;
+    const asso = document.querySelector('input[name="association_id"]:checked')?.value;
+    if (!panneau) return;
+    if (!vet || !asso) { panneau.hidden = true; return; }
+
+    const numero = ++precontroleRequete;
+    panneau.hidden = false;
+    panneau.className = 'precontrole';
+    panneau.innerHTML = '<p class="match-chargement">Vérification de votre don…</p>';
+
+    try {
+        const reponse = await fetch(PRECONTROLE_URL + encodeURIComponent(vet) + '/' + encodeURIComponent(asso), {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+        });
+        if (!reponse.ok) throw new Error('HTTP ' + reponse.status);
+        const r = await reponse.json();
+        if (numero !== precontroleRequete) return;
+
+        const alternative = r.alternative ? `
+            <button type="button" class="btn btn-secondary match-choisir" data-asso="${echapper(r.alternative.association_id)}">
+                Plutôt donner à ${echapper(r.alternative.nom)} (${r.alternative.score}%)
+            </button>` : '';
+
+        panneau.className = 'precontrole precontrole--' + r.niveau;
+        panneau.innerHTML = `
+            <h3 class="precontrole__titre">${echapper(r.titre)} <span class="precontrole__score">${r.score}%</span></h3>
+            ${r.avis ? `<p class="precontrole__avis">${echapper(r.avis)}</p>` : ''}
+            <ul class="precontrole__liste">${(r.messages || []).map(m => `<li>${echapper(m)}</li>`).join('')}</ul>
+            ${alternative}`;
+    } catch (e) {
+        if (numero === precontroleRequete) panneau.hidden = true;
+    }
+}
+
+document.addEventListener('change', e => {
+    if (e.target.name === 'vetement_id' || e.target.name === 'association_id') majPrecontrole();
 });
 
 // Si erreurs Laravel → rouvrir le modal auto

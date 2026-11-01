@@ -100,6 +100,19 @@
                     Définissez les types de textiles dont l'association a besoin.
                 </p>
 
+                {{-- Saisie en une phrase : l'IA propose des lignes, l'association relit puis enregistre --}}
+                <div class="besoins-ia">
+                    <label for="besoins-texte" class="besoins-ia__label">Ou décrivez vos besoins en une phrase</label>
+                    <textarea id="besoins-texte" class="form-control besoins-ia__texte" rows="5" maxlength="1000"
+                              placeholder="Ex : On cherche 30 manteaux pour enfants en taille L et 15 pulls pour adultes, toutes tailles."></textarea>
+                    <div class="besoins-ia__actions">
+                        <button type="button" class="btn btn-secondary small" id="besoins-ia-btn">
+                            <i data-lucide="sparkles" aria-hidden="true"></i> Remplir avec l'IA
+                        </button>
+                        <span id="besoins-ia-message" class="besoins-ia__message" role="status" aria-live="polite"></span>
+                    </div>
+                </div>
+
                 <div id="besoins-list" style="display:flex;flex-direction:column;gap:10px">
                     @php $besoins = old('besoins', $association?->besoins ?? []); @endphp
                     @forelse($besoins as $i => $besoin)
@@ -175,6 +188,62 @@ document.getElementById('add-besoin').addEventListener('click', () => {
 document.addEventListener('click', e => {
     if (e.target.closest('.remove-besoin')) {
         e.target.closest('.besoin-row').remove();
+    }
+});
+
+// ── Besoins en texte libre : l'IA propose des lignes, rien n'est enregistré ──
+const BESOINS_IA_URL = "{{ route('back.associations.besoins-ia') }}";
+
+function remplirLigne(index, besoin) {
+    const ligne = document.querySelector(`.besoin-row[data-index="${index}"]`);
+    if (!ligne) return;
+    ligne.querySelector('select[name$="[type]"]').value = besoin.type;
+    ligne.querySelector('select[name$="[taille]"]').value = besoin.taille || '';
+    ligne.querySelector('input[name$="[quantite]"]').value = besoin.quantite ?? '';
+}
+
+document.getElementById('besoins-ia-btn')?.addEventListener('click', async () => {
+    const champ = document.getElementById('besoins-texte');
+    const message = document.getElementById('besoins-ia-message');
+    const bouton = document.getElementById('besoins-ia-btn');
+    const texte = champ.value.trim();
+
+    if (texte.length < 5) {
+        message.textContent = 'Écrivez au moins une courte phrase.';
+        return;
+    }
+
+    bouton.disabled = true;
+    message.textContent = 'Analyse en cours…';
+
+    try {
+        const reponse = await fetch(BESOINS_IA_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                    || document.querySelector('input[name="_token"]')?.value,
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ texte }),
+        });
+        if (!reponse.ok) throw new Error('HTTP ' + reponse.status);
+        const data = await reponse.json();
+
+        (data.besoins || []).forEach(besoin => {
+            const index = nextIndex++;
+            document.getElementById('besoins-list').insertAdjacentHTML('beforeend', buildBesoinRow(index));
+            remplirLigne(index, besoin);
+        });
+        lucide.createIcons();
+
+        message.textContent = data.message
+            || (data.besoins.length + ' besoin(s) ajouté(s). Vérifiez-les puis enregistrez.');
+    } catch (e) {
+        message.textContent = "Impossible de contacter l'IA. Remplissez les besoins à la main.";
+    } finally {
+        bouton.disabled = false;
     }
 });
 </script>
