@@ -114,6 +114,8 @@ class RendezVous extends Model
         'duree',
         'statut',
         'commentaire',
+        'annule_par',
+        'replanifie_id',
     ];
 
     protected $casts = [
@@ -262,6 +264,18 @@ class RendezVous extends Model
             self::STATUT_EN_ATTENTE,
             self::STATUT_ANNULE,
         ], true);
+    }
+
+    /** Annulé et pas encore remplacé par un nouveau RDV. */
+    public function peutEtreReplanifie(): bool
+    {
+        return $this->statut === self::STATUT_ANNULE && empty($this->replanifie_id);
+    }
+
+    /** L'annulation vient de l'atelier ou de l'administration, pas du citoyen. */
+    public function annuleParLatelier(): bool
+    {
+        return in_array($this->annule_par, ['atelier', 'admin'], true);
     }
 
     /**

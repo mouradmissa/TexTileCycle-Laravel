@@ -1,0 +1,178 @@
+/* IA du module Rendez-vous : créneaux suggérés (formulaire) et assistant de réservation (bulle). */
+
+.creneaux-ia {
+  margin: 4px 0 18px;
+  padding: 14px 16px;
+  border: 1px dashed var(--green);
+  background: var(--green-soft);
+}
+
+.creneaux-ia__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.creneaux-ia__tete p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.creneaux-ia__tete .btn svg { width: 16px; height: 16px; }
+
+.creneaux-ia__duree,
+.creneaux-ia__message {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.creneaux-ia__message.is-erreur { color: #c62828; }
+
+.creneaux-ia__liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.creneau-ia {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.creneau-ia:hover,
+.creneau-ia:focus-visible { border-color: var(--green); }
+
+.creneau-ia.is-choisi {
+  border-color: var(--green);
+  box-shadow: inset 0 0 0 1px var(--green);
+}
+
+.creneau-ia strong { font-size: 14px; }
+
+.creneau-ia small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.creneau-ia__ligne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.affluence-ia {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.affluence-ia--faible { background: #e8f5e9; color: #1d5b2a; }
+.affluence-ia--moyenne { background: #fff3e0; color: #8a4b0f; }
+.affluence-ia--forte { background: #ffebee; color: #b71c1c; }
+
+/* Assistant : même gabarit que le conseiller textile, un peu plus haut pour les propositions. */
+.assistant-rdv .chat-vetement-panel { height: min(560px, calc(100vh - 120px)); }
+
+.assistant-rdv__propositions {
+  align-self: stretch;
+  display: grid;
+  gap: 8px;
+}
+
+.assistant-rdv__proposition {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 13px;
+}
+
+.assistant-rdv__proposition strong { font-size: 14px; }
+
+.assistant-rdv__proposition small { color: var(--muted); }
+
+.assistant-rdv__proposition .btn { justify-self: start; margin-top: 4px; }
+
+.assistant-rdv__choix {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.assistant-rdv__choix button {
+  border: 1px solid var(--green);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: #fff;
+  color: var(--green-dark);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.assistant-rdv__choix button:hover { background: var(--green-soft); }
+
+/* Replanification : rendez-vous annulés à reprogrammer (page « Mes rendez-vous »). */
+.replanif-ia {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.replanif-ia h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+}
+
+.replanif-ia h2 svg { width: 18px; height: 18px; color: var(--green); }
+
+.replanif-ia__carte {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--orange);
+  background: #fff;
+  scroll-margin-top: 90px;
+}
+
+.replanif-ia__carte:target { box-shadow: 0 0 0 2px var(--green-soft); }
+
+.replanif-ia__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.replanif-ia__tete p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.replanif-ia__tete .btn svg { width: 16px; height: 16px; }
+
+.replanif-ia__carte.est-faite { border-left-color: var(--green); }
+
+.creneau-ia .btn { justify-self: start; margin-top: 4px; }

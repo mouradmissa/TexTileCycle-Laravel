@@ -55,4 +55,6 @@
         @include('rendez-vous._form')
     </div>
 </main>
+
+<x-assistant-rdv />
 @endsection
