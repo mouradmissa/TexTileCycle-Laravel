@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Ateliers\Http\Controllers\Front\AssistantController;
 use App\Modules\Ateliers\Http\Controllers\Front\AtelierController;
 use App\Modules\Ateliers\Http\Controllers\Front\AvisController;
 use App\Modules\Ateliers\Http\Controllers\Front\DiagnosticController;
@@ -17,18 +18,30 @@ Route::post('/ateliers/diagnostic', [DiagnosticController::class, 'store'])
     ->middleware('throttle:'.AteliersModuleServiceProvider::LIMITEUR_DIAGNOSTIC)
     ->name('ateliers.diagnostic.analyser');
 
+// Assistant de réparation (RAG : fiches conseils + Gemini) ; questions limitées par minute et par visiteur.
+Route::get('/ateliers/assistant', [AssistantController::class, 'create'])->name('ateliers.assistant');
+Route::post('/ateliers/assistant', [AssistantController::class, 'store'])
+    ->middleware('throttle:'.AteliersModuleServiceProvider::LIMITEUR_ASSISTANT)
+    ->name('ateliers.assistant.repondre');
+
 Route::get('/ateliers/{id}', [AtelierController::class, 'show'])
     ->where('id', '[0-9a-fA-F]{24}')
     ->name('ateliers.show');
 
 // Passeports de réparation : page publique ouverte par le QR (sans connexion) et image du QR ;
 // limitées par visiteur contre les essais de codes en série.
-Route::middleware('throttle:'.AteliersModuleServiceProvider::LIMITEUR_PASSEPORT)
-    ->where(['code' => Passeport::FORMAT_CODE])
-    ->group(function () {
-        Route::get('/passeport/{code}', [PasseportController::class, 'show'])->name('passeport');
-        Route::get('/passeport/{code}/qr.svg', [PasseportController::class, 'qr'])->name('passeport.qr');
-    });
+Route::get('/passeport', [PasseportController::class, 'verifier'])->name('passeport.verifier');
+Route::middleware('throttle:'.AteliersModuleServiceProvider::LIMITEUR_PASSEPORT)->group(function () {
+    Route::get('/passeport/recherche', [PasseportController::class, 'rechercher'])->name('passeport.rechercher');
+    Route::get('/passeport/{code}', [PasseportController::class, 'show'])
+        ->where('code', Passeport::FORMAT_CODE)
+        ->name('passeport');
+});
+// Images du QR : limiteur à part, « Mes passeports » en affiche une par pièce.
+Route::get('/passeport/{code}/qr.svg', [PasseportController::class, 'qr'])
+    ->middleware('throttle:'.AteliersModuleServiceProvider::LIMITEUR_PASSEPORT_QR)
+    ->where('code', Passeport::FORMAT_CODE)
+    ->name('passeport.qr');
 
 Route::get('/mes-passeports', [PasseportController::class, 'mesPasseports'])->middleware('citizen')->name('passeports');
 

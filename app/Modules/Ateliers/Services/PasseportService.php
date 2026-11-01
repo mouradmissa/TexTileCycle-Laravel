@@ -13,6 +13,7 @@ use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Passeports de réparation. Les rendez-vous (module d'un coéquipier) sont seulement lus :
@@ -86,6 +87,13 @@ class PasseportService
             return $existant;
         }
 
+        // Un RDV « terminé » mais daté de demain ou plus tard : on ne certifie pas une réparation qui n'a pas eu lieu.
+        if (self::estAVenir($rdv)) {
+            throw ValidationException::withMessages([
+                'rendez_vous_id' => "Ce rendez-vous est prévu le {$rdv->date_rdv->format('d/m/Y')} : le passeport sera possible à partir de ce jour.",
+            ]);
+        }
+
         return Passeport::query()->create([
             'code' => $this->nouveauCode(),
             'atelier_id' => (string) $atelier->getKey(),
@@ -95,6 +103,12 @@ class PasseportService
             'instantane' => self::instantane($atelier, $rdv, $complements),
             'revoque_le' => null,
         ]);
+    }
+
+    /** Rendez-vous daté d'un jour futur (aujourd'hui reste possible : la réparation peut finir avant l'heure prévue). */
+    public static function estAVenir(RendezVous $rdv): bool
+    {
+        return $rdv->date_rdv !== null && $rdv->date_rdv->copy()->startOfDay()->gt(today());
     }
 
     /**
@@ -125,6 +139,21 @@ class PasseportService
             'ville' => (string) $atelier->ville,
             'repare_le' => $rdv->date_rdv?->toDateString() ?? now()->toDateString(),
         ];
+    }
+
+    /**
+     * Code lu dans une saisie libre : le code seul, ou l'adresse complète copiée sous le QR (QR abîmé, lien reçu).
+     * Le numéro court (« AB3D-EF6H ») ne suffit pas : il ne contient que 8 des 22 caractères du code.
+     */
+    public static function extraireCode(string $saisie): ?string
+    {
+        $saisie = trim($saisie);
+
+        if (preg_match('~/passeport/('.Passeport::FORMAT_CODE.')(?:[/?#]|$)~', $saisie, $trouve)) {
+            return $trouve[1];
+        }
+
+        return preg_match('/^'.Passeport::FORMAT_CODE.'$/', $saisie) ? $saisie : null;
     }
 
     public function trouverParCode(string $code): ?Passeport

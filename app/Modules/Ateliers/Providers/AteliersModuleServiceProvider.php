@@ -26,6 +26,9 @@ class AteliersModuleServiceProvider extends ServiceProvider
      */
     public const LIMITEUR_DIAGNOSTIC = 'ateliers-diagnostic';
 
+    /** Questions à l'assistant de réparation : chacune occupe le service Python et peut appeler Gemini. */
+    public const LIMITEUR_ASSISTANT = 'ateliers-assistant';
+
     /**
      * Limiteur des avis (publication, modification, suppression) : contre les envois en rafale.
      */
@@ -40,6 +43,11 @@ class AteliersModuleServiceProvider extends ServiceProvider
     public const LIMITEUR_PASSEPORT = 'ateliers-passeport';
 
     public const PASSEPORTS_PAR_MINUTE = 60;
+
+    /** Images de QR (plusieurs par page dans « Mes passeports ») : limite plus large que les pages. */
+    public const LIMITEUR_PASSEPORT_QR = 'ateliers-passeport-qr';
+
+    public const QR_PAR_MINUTE = 300;
 
     public function register(): void
     {
@@ -65,8 +73,17 @@ class AteliersModuleServiceProvider extends ServiceProvider
                 ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip()));
         });
 
+        RateLimiter::for(self::LIMITEUR_ASSISTANT, function (Request $request) {
+            return Limit::perMinute(max(1, (int) config('ateliers_diagnostic.assistant_par_minute')))
+                ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip()));
+        });
+
         RateLimiter::for(self::LIMITEUR_PASSEPORT, function (Request $request) {
             return Limit::perMinute(self::PASSEPORTS_PAR_MINUTE)->by($request->ip());
+        });
+
+        RateLimiter::for(self::LIMITEUR_PASSEPORT_QR, function (Request $request) {
+            return Limit::perMinute(self::QR_PAR_MINUTE)->by($request->ip());
         });
 
         RateLimiter::for(self::LIMITEUR_AVIS, function (Request $request) {

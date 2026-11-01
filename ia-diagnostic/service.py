@@ -9,6 +9,7 @@ Routes :
     GET  /sante       état du service (sans jeton, aucune donnée sensible)
     POST /diagnostic  photo + catalogue de services (+ texte du client, + défaut choisi par le client)
                       -> défauts et services classés
+    POST /assistant/recherche  question d'un client -> fiches conseils les plus proches (partie « R » du RAG)
 """
 
 from __future__ import annotations
@@ -26,7 +27,8 @@ from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, UploadF
 from PIL import Image, ImageOps, UnidentifiedImageError
 from pydantic import BaseModel, Field, ValidationError
 
-from diagnostic import CLES_DEFAUTS, MODELE_CLIP, MoteurDiagnostic, Options, Service
+import assistant
+from diagnostic import CLES_DEFAUTS, MODELE_CLIP, MoteurDiagnostic, Options, Service, charger_modele_phrases
 
 VERSION = "clip-vit-b-32/v8"
 
@@ -36,13 +38,14 @@ FORMATS = {"JPEG", "PNG", "WEBP"}
 SERVICES_MAX = 200
 TEXTE_MAX = 300
 NB_RESULTATS = 3
+QUESTION_MAX = 300
 
 journal = logging.getLogger("ia-diagnostic")
 Image.MAX_IMAGE_PIXELS = PIXELS_MAX
 
 # Une seule analyse à la fois : chaque analyse charge le processeur et la mémoire (8 Go sur la machine de dev).
 _verrou = threading.Lock()
-_etat: dict[str, MoteurDiagnostic] = {}
+_etat: dict[str, object] = {}
 
 
 def jeton_attendu() -> str:
@@ -56,6 +59,15 @@ async def cycle_de_vie(app: FastAPI):
     debut = time.perf_counter()
     _etat["moteur"] = MoteurDiagnostic(Options())
     journal.warning("Modèles chargés en %.1f s", time.perf_counter() - debut)
+    # L'assistant est un bonus : s'il ne se charge pas, le diagnostic par photo reste disponible.
+    try:
+        debut = time.perf_counter()
+        modele = charger_modele_phrases()
+        encodeur = lambda textes: modele.encode(textes, convert_to_tensor=True, normalize_embeddings=True)
+        _etat["index"] = assistant.IndexConnaissances(assistant.charger_fiches(), encodeur)
+        journal.warning("Assistant : %d fiches indexées en %.1f s", len(_etat["index"].fiches), time.perf_counter() - debut)
+    except Exception:  # noqa: BLE001 - on journalise et on continue sans assistant
+        journal.exception("Assistant indisponible : fiches ou modèle de phrases introuvables.")
     yield
     _etat.clear()
 
@@ -70,6 +82,13 @@ def obtenir_moteur() -> MoteurDiagnostic:
     if moteur is None:
         raise HTTPException(503, "Le modèle n'est pas encore chargé.")
     return moteur
+
+
+def obtenir_index() -> assistant.IndexConnaissances:
+    index = _etat.get("index")
+    if index is None:
+        raise HTTPException(503, "L'assistant n'est pas disponible.")
+    return index
 
 
 def verifier_jeton(authorization: str | None = Header(default=None)) -> None:
@@ -96,6 +115,24 @@ class Classement(BaseModel):
 class ServicePropose(BaseModel):
     id: str
     score: float
+
+
+class Question(BaseModel):
+    question: str = Field(min_length=3, max_length=QUESTION_MAX)
+
+
+class PassageSortie(BaseModel):
+    id: str
+    titre: str
+    texte: str
+    services: list[str]
+    score: float
+
+
+class ReponseAssistant(BaseModel):
+    pertinent: bool
+    passages: list[PassageSortie]
+    duree_ms: int
 
 
 class Reponse(BaseModel):
@@ -143,7 +180,12 @@ def lire_photo(photo: UploadFile) -> Image.Image:
 
 @app.get("/sante")
 def sante() -> dict:
-    return {"statut": "pret" if "moteur" in _etat else "chargement", "modele": MODELE_CLIP, "version": VERSION}
+    return {
+        "statut": "pret" if "moteur" in _etat else "chargement",
+        "modele": MODELE_CLIP,
+        "version": VERSION,
+        "assistant": "pret" if "index" in _etat else "indisponible",
+    }
 
 
 @app.post("/diagnostic", response_model=Reponse, dependencies=[Depends(verifier_jeton)])
@@ -177,4 +219,24 @@ def diagnostic(
         certain=resultat.certain,
         duree_ms=duree,
         version=VERSION,
+    )
+
+
+@app.post("/assistant/recherche", response_model=ReponseAssistant, dependencies=[Depends(verifier_jeton)])
+def assistant_recherche(entree: Question, index: assistant.IndexConnaissances = Depends(obtenir_index)) -> ReponseAssistant:
+    debut = time.perf_counter()
+    with _verrou:
+        passages, pertinent = index.rechercher(entree.question.strip(), NB_RESULTATS)
+    duree = int((time.perf_counter() - debut) * 1000)
+
+    # La question du client n'est pas journalisée : seulement la fiche trouvée et la durée.
+    journal.info("assistant %d ms : %s (pertinent=%s)", duree, passages[0].fiche.id, pertinent)
+
+    return ReponseAssistant(
+        pertinent=pertinent,
+        passages=[
+            PassageSortie(id=p.fiche.id, titre=p.fiche.titre, texte=p.fiche.texte, services=list(p.fiche.services), score=round(p.score, 4))
+            for p in passages
+        ],
+        duree_ms=duree,
     )

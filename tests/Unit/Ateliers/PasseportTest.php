@@ -122,6 +122,33 @@ class PasseportTest extends TestCase
         $this->assertMatchesRegularExpression('/^'.Passeport::FORMAT_CODE.'$/', \Illuminate\Support\Str::random(Passeport::LONGUEUR_CODE));
     }
 
+    public function test_un_rdv_date_d_un_jour_futur_est_a_venir(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-11-01 09:00'));
+
+        $this->assertTrue(PasseportService::estAVenir(new RendezVous(['date_rdv' => '2026-11-02 08:00'])));
+        // Le jour même reste possible : la réparation peut finir avant l'heure prévue.
+        $this->assertFalse(PasseportService::estAVenir(new RendezVous(['date_rdv' => '2026-11-01 18:00'])));
+        $this->assertFalse(PasseportService::estAVenir(new RendezVous(['date_rdv' => '2026-10-20 10:00'])));
+        $this->assertFalse(PasseportService::estAVenir(new RendezVous()));
+
+        Carbon::setTestNow();
+    }
+
+    public function test_le_code_est_extrait_d_une_saisie_libre(): void
+    {
+        $code = 'Ab3dEf6hIj9kLm2nOp5qRs';
+
+        $this->assertSame($code, PasseportService::extraireCode("  {$code} "));
+        $this->assertSame($code, PasseportService::extraireCode("https://textilecycle.tn/passeport/{$code}"));
+        $this->assertSame($code, PasseportService::extraireCode("http://192.168.1.20:8000/passeport/{$code}?source=qr"));
+        $this->assertSame($code, PasseportService::extraireCode("http://127.0.0.1:8000/passeport/{$code}/qr.svg"));
+        $this->assertNull(PasseportService::extraireCode('AB3D-EF6H'));
+        $this->assertNull(PasseportService::extraireCode($code.'X'));
+        $this->assertNull(PasseportService::extraireCode("https://textilecycle.tn/passeport/{$code}X"));
+        $this->assertNull(PasseportService::extraireCode(''));
+    }
+
     public function test_le_qr_est_un_svg_avec_correction_d_erreurs(): void
     {
         $passeport = new Passeport(['code' => 'Ab3dEf6hIj9kLm2nOp5qRs']);

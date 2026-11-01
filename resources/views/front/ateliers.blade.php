@@ -24,6 +24,9 @@
             <a href="{{ route('front.ateliers.diagnostic') }}" class="tr-pilule est-claire">
                 <i data-lucide="camera" aria-hidden="true"></i> Diagnostiquer mon vêtement par photo
             </a>
+            <a href="{{ route('front.ateliers.assistant') }}" class="tr-pilule">
+                <i data-lucide="message-circle-question" aria-hidden="true"></i> Poser une question à l'assistant
+            </a>
         </div>
     </div>
 @endsection

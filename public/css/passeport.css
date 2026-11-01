@@ -230,3 +230,168 @@
 
 .pp-frise__garantie svg { width: 15px; height: 15px; }
 .pp-frise__garantie.is-active { border-color: #b7dcbb; background: #edf7ee; color: var(--green-dark); }
+
+/* Carte d'identité de la pièce : quatre cases sur la trame, l'essentiel avant la frise. */
+.pp-fiche { margin: 0 0 clamp(28px, 4vw, 44px); }
+
+.pp-fiche__grille {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--tr-filet-clair);
+  border-bottom: 1px solid var(--tr-filet-clair);
+}
+
+.pp-fiche__case {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  padding: 16px 16px 16px 0;
+}
+
+.pp-fiche__case + .pp-fiche__case { padding-left: 16px; border-left: 1px solid var(--tr-filet-clair); }
+
+.pp-fiche__case dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.pp-fiche__case dt svg { width: 15px; height: 15px; }
+.pp-fiche__case dd { margin: 0; font-size: 18px; font-weight: 700; overflow-wrap: anywhere; }
+.pp-fiche__case dd.pp-fiche__detail { color: var(--muted); font-size: 13px; font-weight: 500; }
+.pp-fiche__case.is-garantie dt,
+.pp-fiche__case.is-garantie dd:not(.pp-fiche__detail) { color: var(--green-dark); }
+
+/* Garantie en cours : appel à l'action vers un rendez-vous chez le même atelier. */
+.pp-reclamer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin: 0 0 clamp(28px, 4vw, 44px);
+  padding: 18px 20px;
+  border: 1px solid #b7dcbb;
+  border-radius: 6px;
+  background: #edf7ee;
+}
+
+.pp-reclamer h2 { font-size: 18px; }
+.pp-reclamer p { max-width: 640px; margin: 0; line-height: 1.55; }
+
+/* Frise : numéro court et badge sur la même ligne. */
+.pp-frise__tete { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+
+/* Partage : adresse en lecture seule (copiable sans JavaScript) et boutons. */
+.pp-partage__label { color: var(--muted); font-size: 12px; font-weight: 700; }
+
+.pp-partage__lien {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--tr-filet-clair);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+}
+
+.pp-actions,
+.mp-carte__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.pp-actions[hidden],
+.mp-carte__actions[hidden],
+.pp-actions [hidden],
+.mp-carte__actions [hidden] { display: none; }
+
+.pp-actions__statut { min-height: 1.2em; margin: 0; color: var(--green-dark); font-size: 13px; font-weight: 600; }
+.pp-actions__statut:empty { min-height: 0; }
+
+.pp-partage__telecharger,
+.pp-verifier a,
+.mp-verifier a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green-dark);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.pp-partage__telecharger svg { width: 16px; height: 16px; }
+.pp-verifier { margin: 16px 0 0; }
+
+/* « Vérifier un passeport » (et page 404 d'un code inconnu). */
+.pp-verif {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 3fr);
+  gap: clamp(32px, 5vw, 64px);
+  align-items: start;
+}
+
+.pp-verif__form { display: grid; gap: 10px; justify-items: start; max-width: 620px; }
+.pp-verif__form label { font-weight: 650; }
+
+.pp-verif__form input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--tr-filet-clair);
+  border-radius: 4px;
+  background: #fff;
+  font: inherit;
+}
+
+.pp-verif__form input[aria-invalid="true"] { border-color: #c62828; }
+.pp-verif__erreur { margin: 0; color: #a3352a; font-size: 14px; font-weight: 600; }
+
+/* « Mes passeports » : résumé, numéro et actions. */
+.mp-resume { margin: 0; color: var(--muted); }
+.mp-resume strong { color: var(--ink); }
+.mp-carte__numero { color: var(--green-dark) !important; font-size: 12px !important; font-weight: 700; letter-spacing: .06em; }
+.mp-carte__actions { margin-top: 8px; }
+.mp-verifier { margin: 24px 0 0; }
+
+/* Visible seulement à l'impression. */
+.pp-impression { display: none; }
+
+@media (max-width: 850px) {
+  .pp-fiche__grille { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pp-fiche__case:nth-child(3) { padding-left: 0; border-left: 0; }
+  .pp-fiche__case:nth-child(n + 3) { border-top: 1px solid var(--tr-filet-clair); }
+  .pp-verif { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 460px) {
+  .pp-fiche__grille { grid-template-columns: minmax(0, 1fr); }
+  .pp-fiche__case + .pp-fiche__case { padding-left: 0; border-left: 0; border-top: 1px solid var(--tr-filet-clair); }
+}
+
+/* Impression : la page devient un certificat sur fond blanc, sans navigation ni boutons. */
+@media print {
+  .tr-nav,
+  .tr-pied,
+  .tr-grille,
+  .tr-ariane,
+  .pp-reclamer,
+  .pp-actions,
+  .pp-actions__statut,
+  .pp-partage__label,
+  .pp-partage__lien,
+  .pp-partage__telecharger,
+  .pp-verifier { display: none !important; }
+
+  .tr-bandeau { padding: 0 0 12px !important; background: #fff !important; color: #000 !important; }
+  .tr-bandeau * { color: #000 !important; }
+  .pp-sceau { border-color: #000 !important; }
+  .pp-layout { grid-template-columns: minmax(0, 5fr) minmax(0, 3fr); }
+  .pp-frise__etape { break-inside: avoid; }
+  .pp-impression { display: block; margin-top: 24px; font-size: 12px; color: #444; }
+}

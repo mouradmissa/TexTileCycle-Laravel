@@ -1,0 +1,374 @@
+[
+  {
+    "id": "tache-gras",
+    "titre": "Enlever une tache de gras ou d'huile",
+    "texte": "Agissez vite et sans frotter : posez du talc, de la terre de Sommières ou de la fécule sur la tache, laissez absorber une heure puis brossez. Déposez ensuite une goutte de liquide vaisselle, massez doucement et lavez à la température maximale indiquée sur l'étiquette. Ne passez pas la pièce au sèche-linge tant que la tache est visible : la chaleur la fixe. Sur la soie ou un tissu délicat, confiez-la plutôt à un professionnel.",
+    "mots": [
+      "tache",
+      "gras",
+      "graisse",
+      "huile",
+      "beurre",
+      "sauce",
+      "talc",
+      "liquide vaisselle"
+    ],
+    "services": [
+      "Réparation textile délicat"
+    ]
+  },
+  {
+    "id": "tache-vin-cafe",
+    "titre": "Tache de vin, de café ou de thé",
+    "texte": "Rincez à l'eau froide par l'envers du tissu, sans eau chaude qui fixe les tanins. Tamponnez avec un mélange d'eau et de savon de Marseille, puis lavez normalement. Sur un coton blanc, un détachant à l'oxygène (percarbonate) dans l'eau tiède aide pour les taches anciennes. Testez toujours un produit sur une zone cachée avant de l'appliquer sur la tache.",
+    "mots": [
+      "tache",
+      "vin",
+      "cafe",
+      "the",
+      "jus",
+      "tanin",
+      "savon",
+      "percarbonate"
+    ],
+    "services": []
+  },
+  {
+    "id": "tache-sang",
+    "titre": "Tache de sang",
+    "texte": "Utilisez uniquement de l'eau froide : l'eau chaude cuit les protéines du sang et fixe la tache. Faites tremper la pièce dans l'eau froide salée, puis frottez doucement avec du savon. Sur un coton blanc, un peu d'eau oxygénée diluée peut finir le travail, à tester d'abord sur une zone cachée. Lavez ensuite à la machine.",
+    "mots": [
+      "tache",
+      "sang",
+      "saigne",
+      "eau froide",
+      "sel",
+      "eau oxygenee"
+    ],
+    "services": []
+  },
+  {
+    "id": "trou-jean",
+    "titre": "Trou ou déchirure sur un jean",
+    "texte": "Plus on répare tôt, plus la réparation est discrète : un trou à l'entrejambe ou au genou s'agrandit à chaque lavage. Un atelier fait une reprise à la machine (on recrée la trame du tissu avec du fil assorti), souvent renforcée par une pièce de denim cousue à l'intérieur. Pour un style assumé, la pièce peut être visible ou brodée. Une reprise sur un jean coûte en général moins cher qu'un jean neuf et lui rend plusieurs années de vie.",
+    "mots": [
+      "trou",
+      "dechirure",
+      "dechire",
+      "jean",
+      "denim",
+      "genou",
+      "entrejambe",
+      "reprise",
+      "accroc"
+    ],
+    "services": [
+      "Recoudre une déchirure",
+      "Retouche denim",
+      "Patchs et broderies"
+    ]
+  },
+  {
+    "id": "dechirure-couture",
+    "titre": "Couture défaite ou accroc sur un vêtement",
+    "texte": "Une couture qui s'ouvre se recoud facilement si le tissu n'est pas abîmé : point arrière à la main, fil de même couleur, en reprenant quelques centimètres de part et d'autre. Si le tissu lui-même est déchiré (accroc), il faut une reprise ou une pièce : confiez-la à un atelier pour un résultat solide et discret. Arrêtez la déchirure au plus vite pour qu'elle ne s'étende pas.",
+    "mots": [
+      "couture",
+      "decousu",
+      "defaite",
+      "accroc",
+      "dechirure",
+      "dechire",
+      "recoudre",
+      "point arriere",
+      "fil"
+    ],
+    "services": [
+      "Recoudre une déchirure"
+    ]
+  },
+  {
+    "id": "fermeture-eclair",
+    "titre": "Fermeture éclair bloquée ou cassée",
+    "texte": "Une fermeture qui coince se débloque souvent en frottant les dents avec un crayon à papier (graphite) ou un savon sec. Si elle s'ouvre derrière le curseur, celui-ci est usé : on peut parfois le resserrer légèrement avec une pince, sinon il faut le changer. Quand des dents manquent ou que le ruban est déchiré, la fermeture entière doit être remplacée : un atelier le fait en général en moins d'une heure.",
+    "mots": [
+      "fermeture",
+      "eclair",
+      "zip",
+      "curseur",
+      "dents",
+      "bloquee",
+      "coince",
+      "cassee"
+    ],
+    "services": [
+      "Changer une fermeture"
+    ]
+  },
+  {
+    "id": "bouton",
+    "titre": "Bouton décousu ou perdu",
+    "texte": "Pour recoudre un bouton, utilisez un fil doublé et gardez un petit espace entre le bouton et le tissu (la tige), en enroulant le fil dessous avant de l'arrêter : le bouton se boutonne alors sans tirer sur le tissu. Les vêtements ont souvent un bouton de rechange cousu à l'intérieur. Si plusieurs boutons sont abîmés ou introuvables, un atelier peut tous les remplacer pour garder un ensemble harmonieux.",
+    "mots": [
+      "bouton",
+      "boutons",
+      "decousu",
+      "perdu",
+      "tige",
+      "recoudre",
+      "boutonniere"
+    ],
+    "services": [
+      "Remplacement de boutons"
+    ]
+  },
+  {
+    "id": "ourlet",
+    "titre": "Ourlet décousu ou pantalon trop long",
+    "texte": "Un ourlet décousu se reprend au point invisible, à la main, en piquant à peine le tissu extérieur. Pour raccourcir un pantalon, mesurez avec les chaussures que vous porterez. Sur un jean, demandez un ourlet « d'origine » : l'atelier conserve la bordure usée d'usine pour un rendu naturel. Les adhésifs thermocollants dépannent mais tiennent mal au lavage.",
+    "mots": [
+      "ourlet",
+      "trop long",
+      "raccourcir",
+      "longueur",
+      "pantalon",
+      "decousu",
+      "bas",
+      "point invisible"
+    ],
+    "services": [
+      "Raccourcir un ourlet",
+      "Retouche denim"
+    ]
+  },
+  {
+    "id": "maille-tricot",
+    "titre": "Maille filée ou trou dans un pull",
+    "texte": "Ne coupez jamais un fil qui dépasse d'un tricot : repoussez-le à l'envers avec un crochet fin ou une aiguille. Un petit trou (mite, accroc) se répare par une reprise à l'aiguille avec une laine de même épaisseur, en recréant les mailles. Pour un trou plus grand ou un tricot fin, la reprise de tricot en atelier est invisible. Les coudes usés peuvent aussi recevoir des coudières.",
+    "mots": [
+      "pull",
+      "tricot",
+      "maille",
+      "filee",
+      "laine",
+      "mite",
+      "trou",
+      "gilet",
+      "coudiere"
+    ],
+    "services": [
+      "Reprise de tricot"
+    ]
+  },
+  {
+    "id": "bouloches",
+    "titre": "Bouloches sur un pull",
+    "texte": "Les bouloches viennent du frottement des fibres. Retirez-les avec un rasoir anti-bouloches ou un peigne à pull, en tenant le tissu à plat. Pour en limiter l'apparition, lavez le pull à l'envers, sur un programme délicat, et évitez de le laver avec des jeans ou des vêtements à fermeture. Ce n'est pas un défaut grave : le pull reste parfaitement portable.",
+    "mots": [
+      "bouloche",
+      "bouloches",
+      "peluche",
+      "pull",
+      "rasoir",
+      "frottement"
+    ],
+    "services": []
+  },
+  {
+    "id": "entretien-laine",
+    "titre": "Laver et ranger un vêtement en laine",
+    "texte": "Lavez la laine à froid ou à 30 °C, programme laine ou à la main, avec une lessive douce, sans frotter ni tordre. Essorez en roulant la pièce dans une serviette, puis séchez-la à plat, loin d'un radiateur. Rangez-la propre et pliée (un cintre la déforme) ; un sachet de lavande ou de bois de cèdre éloigne les mites. Aérez souvent : la laine se lave beaucoup moins qu'un coton.",
+    "mots": [
+      "laine",
+      "pull",
+      "laver",
+      "lavage",
+      "entretien",
+      "ranger",
+      "mite",
+      "secher",
+      "cachemire"
+    ],
+    "services": []
+  },
+  {
+    "id": "retrecissement",
+    "titre": "Vêtement en laine rétréci au lavage",
+    "texte": "Un pull feutré par l'eau chaude peut parfois regagner un peu de taille : faites-le tremper trente minutes dans de l'eau tiède avec une cuillère d'après-shampooing, essorez sans tordre, puis étirez-le doucement et séchez-le à plat en le maintenant aux bonnes dimensions. Le résultat est partiel : un feutrage important est irréversible. Le pull peut alors être transformé (upcycling).",
+    "mots": [
+      "retreci",
+      "retrecissement",
+      "feutre",
+      "rapetisse",
+      "laine",
+      "pull",
+      "lavage"
+    ],
+    "services": [
+      "Upcycling créatif"
+    ]
+  },
+  {
+    "id": "entretien-coton-lin",
+    "titre": "Laver et repasser le coton et le lin",
+    "texte": "Le coton et le lin supportent bien la machine : 30 à 40 °C suffisent pour un usage courant, à l'envers pour préserver les couleurs. Le lin se froisse : séchez-le sur un cintre et repassez-le encore légèrement humide. Lavez moins souvent et moins chaud prolonge la vie des fibres et économise de l'énergie. Respectez toujours les symboles de l'étiquette.",
+    "mots": [
+      "coton",
+      "lin",
+      "laver",
+      "lavage",
+      "repasser",
+      "repassage",
+      "entretien",
+      "froisse",
+      "etiquette"
+    ],
+    "services": []
+  },
+  {
+    "id": "doublure",
+    "titre": "Doublure de veste ou de manteau déchirée",
+    "texte": "La doublure s'use avant le tissu extérieur, surtout aux aisselles et dans les poches. Une petite déchirure se recoud ; une doublure très abîmée se remplace entièrement. C'est un travail de couturier, car il faut démonter et remonter la veste, mais il redonne une longue vie à un manteau de bonne qualité, souvent pour bien moins cher qu'un neuf.",
+    "mots": [
+      "doublure",
+      "veste",
+      "manteau",
+      "blazer",
+      "poche",
+      "aisselle",
+      "interieur"
+    ],
+    "services": [
+      "Remplacement de doublure"
+    ]
+  },
+  {
+    "id": "ajustement",
+    "titre": "Vêtement trop grand : faire une retouche",
+    "texte": "Une robe, une chemise ou un pantalon trop grand se reprend en atelier : cintrer la taille, reprendre les côtés, raccourcir les manches ou ajuster les épaules. Portez la pièce lors de l'essayage pour que le couturier épingle sur vous. Une retouche bien faite rend un vêtement de seconde main ou hérité parfaitement à votre taille.",
+    "mots": [
+      "trop grand",
+      "grand",
+      "large",
+      "ajuster",
+      "ajustement",
+      "retouche",
+      "cintrer",
+      "taille",
+      "robe",
+      "manches"
+    ],
+    "services": [
+      "Ajustement de robe"
+    ]
+  },
+  {
+    "id": "textile-delicat",
+    "titre": "Réparer la soie, la dentelle ou un tissu délicat",
+    "texte": "La soie, la dentelle, le satin ou les tissus brodés supportent mal les réparations improvisées : la colle et le thermocollant les tachent, une aiguille trop épaisse les marque. Lavez-les à la main à froid, sans essorer. Pour un accroc ou une couture, choisissez un atelier qui annonce les textiles délicats et demandez-lui comment il compte procéder.",
+    "mots": [
+      "soie",
+      "dentelle",
+      "satin",
+      "delicat",
+      "fragile",
+      "broderie",
+      "mousseline",
+      "ceremonie"
+    ],
+    "services": [
+      "Réparation textile délicat"
+    ]
+  },
+  {
+    "id": "upcycling",
+    "titre": "Transformer un vêtement qu'on ne porte plus",
+    "texte": "Un vêtement taché, trop usé ou démodé peut changer de vie : jean transformé en short ou en sac, chemise en top, pull feutré en coussin ou en mitaines. Des broderies ou des patchs cachent une tache tout en donnant du caractère. Un atelier d'upcycling propose des idées selon la matière et l'état de la pièce.",
+    "mots": [
+      "transformer",
+      "upcycling",
+      "recycler",
+      "demode",
+      "short",
+      "patch",
+      "broderie",
+      "seconde vie",
+      "creatif"
+    ],
+    "services": [
+      "Upcycling créatif",
+      "Patchs et broderies"
+    ]
+  },
+  {
+    "id": "reparer-ou-pas",
+    "titre": "Réparer, donner ou recycler : comment choisir",
+    "texte": "Réparez quand la matière est de bonne qualité, que le défaut est localisé (trou, fermeture, couture, bouton) et que la réparation coûte moins que le remplacement. Si la pièce est en bon état mais ne vous va plus, donnez-la à une association partenaire depuis TexTileCycle. Si elle est trop usée pour être portée, déposez-la au recyclage textile plutôt qu'à la poubelle.",
+    "mots": [
+      "reparer",
+      "donner",
+      "don",
+      "recycler",
+      "recyclage",
+      "jeter",
+      "vaut",
+      "choisir",
+      "association"
+    ],
+    "services": []
+  },
+  {
+    "id": "impact",
+    "titre": "Pourquoi réparer ses vêtements",
+    "texte": "Fabriquer un vêtement demande de l'eau, de l'énergie et des matières premières : l'essentiel de son impact a lieu avant son premier porté. Le garder plus longtemps est donc le geste le plus efficace. L'organisme britannique WRAP estime que porter ses vêtements neuf mois de plus réduit d'environ 20 à 30 % leurs empreintes carbone, eau et déchets. Une réparation est souvent ce qui permet ces mois en plus.",
+    "mots": [
+      "pourquoi",
+      "impact",
+      "environnement",
+      "ecologie",
+      "carbone",
+      "eau",
+      "planete",
+      "durable",
+      "pollution",
+      "acheter",
+      "neuf"
+    ],
+    "services": []
+  },
+  {
+    "id": "preparer-rdv",
+    "titre": "Préparer son rendez-vous dans un atelier",
+    "texte": "Apportez la pièce propre, expliquez le défaut et le résultat attendu (discret ou visible), et demandez le prix et le délai avant le travail. Pour une retouche de longueur, venez avec les chaussures que vous porterez. Sur TexTileCycle, chaque atelier affiche ses services, ses prix estimés et ses horaires ; le diagnostic par photo propose les ateliers adaptés.",
+    "mots": [
+      "rendez-vous",
+      "rdv",
+      "atelier",
+      "prix",
+      "devis",
+      "delai",
+      "preparer",
+      "combien",
+      "horaires"
+    ],
+    "services": []
+  },
+  {
+    "id": "passeport",
+    "titre": "Le passeport de réparation et sa garantie",
+    "texte": "Après une réparation terminée, l'atelier peut créer un passeport de réparation : une étiquette QR cousue sur la pièce, qui montre l'historique de ses réparations sans aucune donnée personnelle. Il peut inclure une garantie de 15 à 90 jours chez le même atelier. Montrez-le quand vous revendez ou donnez la pièce : il prouve qu'elle a été entretenue. Retrouvez vos passeports dans « Mes passeports ».",
+    "mots": [
+      "passeport",
+      "qr",
+      "garantie",
+      "certificat",
+      "revente",
+      "revendre",
+      "historique",
+      "etiquette",
+      "cousu",
+      "code"
+    ],
+    "services": []
+  }
+]

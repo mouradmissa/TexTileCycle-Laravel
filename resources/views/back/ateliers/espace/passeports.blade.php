@@ -62,6 +62,11 @@
                                     <x-status-badge tone="red">Révoqué</x-status-badge>
                                 @else
                                     <x-status-badge tone="green">{{ $passeport->numeroCourt() }}</x-status-badge>
+                                    @if ($passeport->garantieJours() > 0)
+                                        <span class="ab-passeport-garantie">
+                                            Garantie {{ $passeport->garantieActive() ? "jusqu'au ".$passeport->garantieFin()->format('d/m/Y') : 'expirée' }}
+                                        </span>
+                                    @endif
                                 @endif
                             </td>
                             <td data-label="Actions" class="ab-actions-cell">
@@ -75,6 +80,11 @@
                                            title="Voir la page publique" aria-label="Voir la page publique du passeport {{ $passeport->numeroCourt() }} (nouvel onglet)">
                                             <i data-lucide="external-link" aria-hidden="true"></i>
                                         </a>
+                                    @elseif (\App\Modules\Ateliers\Services\PasseportService::estAVenir($rdv))
+                                        {{-- RDV marqué « terminé » mais daté d'un jour futur : pas de certificat avant la date. --}}
+                                        <span class="ab-passeport-avenir">
+                                            <i data-lucide="calendar-clock" aria-hidden="true"></i> Possible le {{ $rdv->date_rdv->format('d/m/Y') }}
+                                        </span>
                                     @else
                                         @php
                                             $rdvId = (string) $rdv->getKey();

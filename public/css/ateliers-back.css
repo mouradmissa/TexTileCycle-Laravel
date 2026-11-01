@@ -1020,3 +1020,17 @@ a.tc-pagination__link:hover {
   resize: vertical;
 }
 .ab-generer__form .btn { justify-self: start; margin-top: 4px; }
+
+/* Passeports : garantie sous le numéro, et RDV daté d'un jour futur (génération impossible avant la date). */
+.ab-passeport-garantie { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+
+.ab-passeport-avenir {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ab-passeport-avenir svg { width: 15px; height: 15px; }

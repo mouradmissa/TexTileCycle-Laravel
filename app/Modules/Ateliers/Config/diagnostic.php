@@ -17,4 +17,9 @@ return [
 
     // Analyses autorisées par minute et par visiteur (chaque analyse occupe le processeur du service).
     'par_minute' => (int) env('IA_DIAGNOSTIC_PAR_MINUTE', 10),
+
+    // Assistant de réparation (RAG) : recherche dans les fiches par le même service Python, puis rédaction par
+    // Gemini avec la clé déjà configurée pour le module Vêtements (config/services.php, « vision »).
+    'assistant_par_minute' => (int) env('IA_ASSISTANT_PAR_MINUTE', 10),
+    'assistant_delai_redaction' => (int) env('IA_ASSISTANT_DELAI_REDACTION', 20),
 ];

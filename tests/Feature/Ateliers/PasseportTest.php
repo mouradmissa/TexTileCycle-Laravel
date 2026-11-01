@@ -449,4 +449,138 @@ class PasseportTest extends TestCase
             ->assertForbidden();
         $this->actingAs($atelier)->get('/admin/ateliers/passeports')->assertForbidden();
     }
+
+    /* --------------------------------------------------------------- Affichage enrichi */
+
+    public function test_la_page_publique_resume_la_piece_et_propose_de_faire_jouer_la_garantie(): void
+    {
+        $passeports = $this->mockPasseports();
+        $passeports->shouldReceive('trouverParCode')->with(self::CODE)->andReturn($this->passeport());
+        $passeports->shouldReceive('historique')->andReturn(collect([$this->passeport()]));
+        $passeports->shouldReceive('ateliersDe')->andReturn(collect([self::ID_ATELIER => $this->atelier()]));
+        Carbon::setTestNow(Carbon::parse('2026-10-17 12:00'));
+
+        $this->get('/passeport/'.self::CODE)
+            ->assertOk()
+            ->assertSee('Résumé de la pièce')
+            ->assertSee('Réparations certifiées')
+            ->assertSee("Jusqu'au 15 novembre 2026", false)
+            ->assertSee('Faire jouer la garantie')
+            ->assertSee(route('front.rdv.create', ['atelier_id' => self::ID_ATELIER]), false)
+            ->assertSee('value="'.route('front.passeport', ['code' => self::CODE]).'" readonly', false)
+            ->assertSee('data-pp-actions hidden', false)
+            ->assertSee('js/passeport.js')
+            ->assertSee(route('front.passeport.verifier'), false);
+    }
+
+    public function test_sans_garantie_valable_ni_atelier_actif_pas_de_reclamation(): void
+    {
+        $passeports = $this->mockPasseports();
+        $passeports->shouldReceive('trouverParCode')->with(self::CODE)->andReturn($this->passeport());
+        $passeports->shouldReceive('historique')->andReturn(collect([$this->passeport()]));
+        $passeports->shouldReceive('ateliersDe')->andReturn(collect([self::ID_ATELIER => $this->atelier()]));
+        Carbon::setTestNow(Carbon::parse('2026-12-01 12:00'));
+
+        $this->get('/passeport/'.self::CODE)
+            ->assertOk()
+            ->assertSee('Aucune en cours')
+            ->assertSee('expirée depuis le')
+            ->assertDontSee('Faire jouer la garantie');
+    }
+
+    public function test_garantie_valable_chez_un_atelier_suspendu_pas_de_lien_de_rdv(): void
+    {
+        $passeports = $this->mockPasseports();
+        $passeports->shouldReceive('trouverParCode')->with(self::CODE)->andReturn($this->passeport());
+        $passeports->shouldReceive('historique')->andReturn(collect([$this->passeport()]));
+        // ateliersDe ne rend que les ateliers actifs.
+        $passeports->shouldReceive('ateliersDe')->andReturn(collect());
+        Carbon::setTestNow(Carbon::parse('2026-10-17 12:00'));
+
+        $this->get('/passeport/'.self::CODE)
+            ->assertOk()
+            ->assertSee('Valable')
+            ->assertDontSee('Faire jouer la garantie')
+            ->assertDontSee(route('front.rdv.create'), false);
+    }
+
+    public function test_un_code_inconnu_affiche_une_page_d_aide_en_404(): void
+    {
+        $this->mockPasseports()->shouldReceive('trouverParCode')->andReturnNull();
+
+        $this->get('/passeport/'.self::CODE)
+            ->assertNotFound()
+            ->assertSee('Ce passeport est introuvable')
+            ->assertSee('name="code"', false)
+            ->assertSee(route('front.passeport.rechercher'), false)
+            ->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+    }
+
+    public function test_verifier_un_passeport_par_code_ou_par_adresse(): void
+    {
+        $passeports = $this->mockPasseports();
+        $passeports->shouldReceive('trouverParCode')->with(self::CODE)->andReturn($this->passeport());
+
+        $this->get('/passeport')->assertOk()->assertSee('Vérifier un passeport')->assertDontSee('introuvable');
+
+        $this->get('/passeport/recherche?code='.self::CODE)
+            ->assertRedirect(route('front.passeport', ['code' => self::CODE]));
+
+        $this->get('/passeport/recherche?code='.urlencode('  http://exemple.tn/passeport/'.self::CODE.'?utm=qr '))
+            ->assertRedirect(route('front.passeport', ['code' => self::CODE]));
+    }
+
+    public function test_verifier_refuse_un_code_mal_forme_ou_inconnu(): void
+    {
+        $passeports = $this->mockPasseports();
+        $passeports->shouldReceive('trouverParCode')->andReturnNull();
+
+        $this->get('/passeport/recherche?code=AB3D-EF6H')
+            ->assertRedirect(route('front.passeport.verifier'))
+            ->assertSessionHasErrors(['code' => 'Ce n\'est pas un code de passeport : il compte 22 lettres et chiffres (ou collez l\'adresse complète écrite sous le QR).']);
+
+        $this->get('/passeport/recherche')
+            ->assertRedirect(route('front.passeport.verifier'))
+            ->assertSessionHasErrors('code');
+
+        $this->get('/passeport/recherche?code='.self::CODE)
+            ->assertRedirect(route('front.passeport.verifier'))
+            ->assertSessionHasErrors(['code' => 'Aucun passeport ne correspond à ce code. Vérifiez les majuscules et minuscules.']);
+
+        $page = $this->withSession(['errors' => (new \Illuminate\Support\ViewErrorBag())->put('default', new \Illuminate\Support\MessageBag(['code' => 'Code <b>faux</b>']))])
+            ->get('/passeport');
+        $page->assertSee('aria-invalid="true"', false)->assertSee('Code &lt;b&gt;faux&lt;/b&gt;', false);
+        $this->assertDoesNotMatchRegularExpression('/\s(required|maxlength|minlength|pattern)(=|\s|>)/', $page->getContent());
+    }
+
+    public function test_un_rdv_date_d_un_jour_futur_ne_propose_pas_de_generer(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-11-01 09:00'));
+        $this->mockAteliers($this->atelier());
+        $futur = $this->rdvTermine();
+        $futur->date_rdv = '2026-11-09 10:00';
+        $passeports = $this->mockPasseports();
+        $passeports->shouldReceive('reparationsDeLatelier')->andReturn(collect([['rdv' => $futur, 'passeport' => null]]));
+        $passeports->shouldReceive('reparationsEnCours')->andReturn(new Collection());
+
+        $this->actingAs($this->user(User::ROLE_ATELIER, self::ID_USER_ATELIER))
+            ->get('/admin/ateliers/mes-passeports')
+            ->assertOk()
+            ->assertSee('Possible le 09/11/2026')
+            ->assertDontSee('name="rendez_vous_id"', false);
+    }
+
+    public function test_mes_passeports_resume_la_garantie_et_propose_de_copier_le_lien(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-10-17 12:00'));
+        $this->mockPasseports()->shouldReceive('pourClient')->andReturn(new Collection([$this->passeport()]));
+
+        $this->actingAs($this->user(User::ROLE_CITOYEN, self::ID_CLIENT))
+            ->get('/mes-passeports')
+            ->assertOk()
+            ->assertSee('encore sous garantie')
+            ->assertSee("Garantie jusqu'au 15 nov. 2026", false)
+            ->assertSee('data-pp-url="'.route('front.passeport', ['code' => self::CODE]).'"', false)
+            ->assertSee('Copier le lien');
+    }
 }

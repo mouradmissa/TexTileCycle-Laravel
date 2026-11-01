@@ -3,6 +3,7 @@
 namespace App\Modules\Ateliers\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Ateliers\Http\Requests\VerifierPasseportRequest;
 use App\Modules\Ateliers\Services\PasseportService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,7 +21,11 @@ class PasseportController extends Controller
     public function show(string $code)
     {
         $passeport = $this->passeports->trouverParCode($code);
-        abort_unless($passeport, 404);
+
+        // QR abîmé ou lien mal copié : une page qui explique et propose de saisir le code, plutôt qu'une 404 brute.
+        if (! $passeport) {
+            return $this->nonIndexe(response()->view('front.passeport-verifier', ['introuvable' => true], 404));
+        }
 
         $historique = $passeport->estRevoque() ? collect() : $this->passeports->historique($passeport);
 
@@ -31,6 +36,25 @@ class PasseportController extends Controller
         ]);
 
         return $this->nonIndexe($response);
+    }
+
+    /** Formulaire « Vérifier un passeport » (code ou adresse copiée sous le QR). */
+    public function verifier()
+    {
+        return $this->nonIndexe(response()->view('front.passeport-verifier', ['introuvable' => false]));
+    }
+
+    public function rechercher(VerifierPasseportRequest $request)
+    {
+        $code = $request->code();
+
+        if (! $this->passeports->trouverParCode($code)) {
+            return redirect()->route('front.passeport.verifier')
+                ->withInput()
+                ->withErrors(['code' => 'Aucun passeport ne correspond à ce code. Vérifiez les majuscules et minuscules.']);
+        }
+
+        return redirect()->route('front.passeport', ['code' => $code]);
     }
 
     public function qr(string $code)

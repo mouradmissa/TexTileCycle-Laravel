@@ -133,6 +133,8 @@ class AvisService
             ->where('user_id', (string) $user->getKey())
             ->where('atelier_id', $atelierId)
             ->where('statut', RendezVous::STATUT_TERMINE)
+            // Un RDV « terminé » daté d'un jour futur ne prouve pas encore une réparation.
+            ->where('date_rdv', '<=', today()->endOfDay())
             ->orderByDesc('date_rdv')
             ->first();
     }

@@ -74,7 +74,7 @@ def envoyer(client, photo=None, services=None, texte=None, jeton=JETON, nom="pho
 def test_sante_ne_demande_pas_de_jeton_et_n_expose_rien_de_sensible(client):
     reponse = client.get("/sante")
     assert reponse.status_code == 200
-    assert set(reponse.json()) == {"statut", "modele", "version"}
+    assert set(reponse.json()) == {"statut", "modele", "version", "assistant"}
 
 
 @pytest.mark.parametrize("jeton", [None, "mauvais-jeton-de-test", JETON + "x"])
