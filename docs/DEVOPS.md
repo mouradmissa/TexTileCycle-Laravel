@@ -141,7 +141,9 @@ En cas d’échec, le journal de l’étape rouge dans Jenkins indique la comman
 
 ## 4. Render
 
-Le site public se décrit dans `render.yaml`. Render construit l’image `docker/php/Dockerfile`, écoute la variable `PORT`, et publie une adresse `https://….onrender.com`. L’adresse est recopiée dans `APP_URL` au démarrage. Les secrets (clé Laravel, URI Atlas, Gemini, WhatsApp, mot de passe Gmail, jeton IA) se saisissent dans le tableau de bord : ils ne sont pas dans le dépôt.
+Le site public se décrit dans `render.yaml`. Render construit l’image `docker/php/Dockerfile`, écoute la variable `PORT`, et publie une adresse `https://….onrender.com`. L’adresse est recopiée dans `APP_URL` au démarrage. Les secrets (clé Laravel, URI Atlas, Gemini, WhatsApp, mot de passe Gmail, jeton IA, relais mail) se saisissent dans le tableau de bord : ils ne sont pas dans le dépôt.
+
+L'offre gratuite bloque les ports SMTP 25, 465 et 587. Quand `MAIL_RELAY_URL` est renseignée, le conteneur envoie les messages en HTTPS vers le script `devops/mail/relais-gmail.gs`, qui les transmet avec le compte Gmail.
 
 MongoDB Atlas doit autoriser les adresses de sortie de Render, documentées sur [les IP de sortie Render](https://render.com/docs/outbound-ip-addresses). Le service IA CLIP reste sur cette machine : une instance gratuite Render n’a pas assez de mémoire pour charger le modèle. Les photos de `storage/app/public` ne sont pas dans Git ; sur l’offre gratuite le disque est éphémère. Un disque persistant (offre payante) se monte sur `/var/www/html/storage/app/public`.
 

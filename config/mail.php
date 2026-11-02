@@ -77,6 +77,13 @@ return [
                 'log',
             ],
         ],
+
+        // HTTPS : l'offre gratuite Render bloque les ports SMTP 25, 465 et 587.
+        'relais' => [
+            'transport' => 'relais',
+            'url' => env('MAIL_RELAY_URL'),
+            'secret' => env('MAIL_RELAY_SECRET'),
+        ],
     ],
 
     /*

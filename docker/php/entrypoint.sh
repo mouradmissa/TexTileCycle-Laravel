@@ -14,6 +14,11 @@ if [ -n "${IA_DIAGNOSTIC_HOSTPORT:-}" ]; then
     export IA_DIAGNOSTIC_URL="http://${IA_DIAGNOSTIC_HOSTPORT}"
 fi
 
+# L'offre gratuite Render bloque les ports SMTP. Le relais part en HTTPS.
+if [ -n "${MAIL_RELAY_URL:-}" ]; then
+    export MAIL_MAILER=relais
+fi
+
 mkdir -p \
     storage/framework/cache/data \
     storage/framework/sessions \

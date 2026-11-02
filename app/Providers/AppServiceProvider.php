@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Mail\Transport\RelaisHttpsTransport;
 use App\Modules\Core\Support\AtlasIpSynchronizer;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
 use Throwable;
 
@@ -25,6 +27,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Mail::extend('relais', function (array $config = []) {
+            return new RelaisHttpsTransport(
+                (string) ($config['url'] ?? ''),
+                (string) ($config['secret'] ?? '')
+            );
+        });
+
         if (! AtlasIpSynchronizer::shouldRunForCurrentProcess()) {
             return;
         }
