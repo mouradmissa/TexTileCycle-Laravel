@@ -1,0 +1,81 @@
+# Blueprint Render : https://dashboard.render.com/
+# Les secrets se saisissent dans le tableau de bord (sync: false).
+# Ils ne sont pas écrits ici.
+
+services:
+  - type: web
+    name: textilecycle
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: integration-final
+    dockerfilePath: ./docker/php/Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: APP_NAME
+        value: TexTileCycle
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DB_CONNECTION
+        value: mongodb
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DATABASE
+        value: textilecycle
+      - key: MONGODB_APP_NAME
+        value: TexTileCycle
+      - key: ATLAS_IP_SYNC
+        value: "false"
+      - key: CACHE_DRIVER
+        value: file
+      - key: SESSION_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_ENCRYPTION
+        value: tls
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: TexTileCycle
+      - key: VISION_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      - key: GEMINI_DONS_API_KEY
+        sync: false
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_ID
+        value: "1398895369978434"
+      - key: WHATSAPP_BUSINESS_ACCOUNT_ID
+        value: "1588562759233203"
+      - key: WHATSAPP_FROM
+        value: "+15551491710"
+      - key: WHATSAPP_GRAPH_VERSION
+        value: v25.0
+      - key: IA_DIAGNOSTIC_URL
+        sync: false
+      - key: IA_DIAGNOSTIC_JETON
+        sync: false
