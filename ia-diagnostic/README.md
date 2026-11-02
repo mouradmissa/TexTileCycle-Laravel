@@ -25,6 +25,7 @@ Laravel ──POST /diagnostic (photo, services, texte?)──► service.py ─
 | `assistant.py` | Assistant de réparation : recherche hybride dans les fiches conseils (le « R » du RAG) |
 | `connaissances/fiches.json` | 21 fiches conseils (taches, trous, fermetures, entretien…) et services liés |
 | `evaluer_assistant.py` | Banc de mesure de la recherche de l'assistant (top-1, top-3, hors sujet) |
+| `telecharger_modeles.py` | Télécharge une fois les trois modèles (à lancer avant le premier démarrage) |
 
 ## Assistant de réparation (RAG)
 
@@ -33,8 +34,7 @@ Laravel ──POST /diagnostic (photo, services, texte?)──► service.py ─
 ensuite ces fiches à Gemini, qui rédige la réponse en les citant ; sans Gemini, le site montre les fiches telles quelles.
 
 - Encodeur : `paraphrase-multilingual-MiniLM-L12-v2` (environ 470 Mo, chargé au démarrage en plus de CLIP).
-  Sur un nouveau PC, téléchargez-le une fois comme les modèles CLIP (le service démarre hors ligne) :
-  `python -c "from sentence_transformers import SentenceTransformer as S; S('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')"`.
+  Sur un nouveau PC, il est téléchargé par `telecharger_modeles.py`, avec les modèles CLIP.
   S'il manque, seul l'assistant est indisponible (`/sante` : `"assistant": "indisponible"`), le diagnostic marche.
 - Score = 0,6 × similarité des vecteurs + 0,4 × mots-clés de la fiche ; hors sujet = aucun mot-clé et similarité < 0,55.
 - Mesure (`python evaluer_assistant.py`, 10 questions jamais utilisées pour le réglage) : bonne fiche en 1re position
@@ -51,7 +51,14 @@ python -m venv "$USERPROFILE/.textilecycle-ia/venv"
 "$USERPROFILE/.textilecycle-ia/venv/Scripts/python.exe" -m pip install -r requirements.txt
 ```
 
-Les modèles (environ 1,3 Go) sont téléchargés depuis Hugging Face au premier lancement, puis fonctionnent hors ligne.
+Puis téléchargez **une fois** les trois modèles (environ 1,6 Go, depuis Hugging Face) : le service démarre ensuite
+hors ligne (`HF_HUB_OFFLINE=1`) et ne télécharge rien de lui-même.
+
+```bash
+"$USERPROFILE/.textilecycle-ia/venv/Scripts/python.exe" telecharger_modeles.py
+```
+
+Guide complet d'installation du module (logiciels, `.env`, dépannage) : [`app/Modules/Ateliers/README.md`](../app/Modules/Ateliers/README.md).
 
 ## Lancement
 
