@@ -20,7 +20,6 @@ storage/framework/cache/data
 storage/framework/sessions
 storage/framework/views
 storage/framework/testing
-storage/app/public
 storage/*.key
 
 ia-diagnostic/__pycache__
