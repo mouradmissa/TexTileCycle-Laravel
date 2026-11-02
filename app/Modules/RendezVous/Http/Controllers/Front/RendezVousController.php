@@ -70,7 +70,19 @@ class RendezVousController extends Controller
             ->orderBy('date_rdv', 'desc')
             ->paginate(10);
 
-        return view('rendez-vous.index', compact('rendezVous'));
+        // Annulations récentes à reprogrammer, tant que la pièce n'est pas déjà réparée, donnée ou recyclée.
+        $aReprogrammer = RendezVous::where('user_id', (string) auth()->id())
+            ->where('statut', RendezVous::STATUT_ANNULE)
+            ->whereNull('replanifie_id')
+            ->where('date_rdv', '>=', now()->subDays(30))
+            ->with('vetement')
+            ->orderByDesc('updated_at')
+            ->limit(5)
+            ->get()
+            ->filter(fn (RendezVous $rdv) => $rdv->vetement && ! in_array($rdv->vetement->status, Vetement::STATUTS_HISTORIQUE, true))
+            ->values();
+
+        return view('rendez-vous.index', compact('rendezVous', 'aReprogrammer'));
     }
 
     /**
@@ -146,7 +158,15 @@ class RendezVousController extends Controller
                 ->with('error', 'Ce rendez-vous ne peut plus être modifié.');
         }
 
-        $rendezVous->update($request->validated());
+        $donnees = $request->validated();
+        $this->rendezVousService->verifierCreneauLibre(
+            (string) $donnees['atelier_id'],
+            $donnees['date_rdv'],
+            (int) $donnees['duree'],
+            (string) $rendezVous->getKey()
+        );
+
+        $rendezVous->update($donnees);
 
         return redirect()
             ->route('front.rdv')
@@ -194,7 +214,7 @@ class RendezVousController extends Controller
                 ->with('error', 'Ce rendez-vous ne peut pas être annulé.');
         }
 
-        $rendezVous->update(['statut' => RendezVous::STATUT_ANNULE]);
+        $rendezVous->update(['statut' => RendezVous::STATUT_ANNULE, 'annule_par' => 'citoyen']);
 
         return redirect()
             ->route('front.rdv')

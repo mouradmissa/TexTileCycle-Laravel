@@ -102,12 +102,4 @@ class Association extends Model
             array_slice($items, 0, 3)
         ));
     }
-
-    /** Calcule un score de matching IA simulé (0-100). */
-    public function matchScore(): int
-    {
-        $base  = 60;
-        $count = count($this->besoins ?? []);
-        return min(98, $base + $count * 5 + rand(0, 10));
-    }
 }

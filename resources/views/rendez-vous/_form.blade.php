@@ -21,7 +21,7 @@
                     <a href="{{ route('front.vetements') }}" style="color:#7a3e0c;font-weight:600;text-decoration:underline">Créer un vêtement dans « Mes vêtements »</a>
                 </div>
             @endif
-            <select name="vetement_id" required>
+            <select name="vetement_id" id="rdv-vetement" required>
                 <option value="">Sélectionner un vêtement</option>
                 @foreach($vetements as $vetement)
                     <option value="{{ $vetement->getKey() }}"
@@ -71,7 +71,7 @@
 
         {{-- Date et heure --}}
         <label>Date et heure
-            <input type="datetime-local" name="date_rdv" required
+            <input type="datetime-local" name="date_rdv" id="rdv-date" required
                    value="{{ old('date_rdv', $isEdit && $rendezVous->date_rdv ? $rendezVous->date_rdv->format('Y-m-d\TH:i') : '') }}">
             @error('date_rdv')
                 <span class="form-error">{{ $message }}</span>
@@ -79,10 +79,25 @@
         </label>
     </div>
 
+    {{-- IA : créneau optimal selon l'affluence de l'atelier et la durée estimée --}}
+    <div class="creneaux-ia" data-creneaux-ia
+         data-url="{{ route('front.rdv.ia.creneaux') }}"
+         data-ignorer="{{ $isEdit ? $rendezVous->getKey() : '' }}">
+        <div class="creneaux-ia__tete">
+            <p><strong>Créneau optimal</strong> — l'IA cherche le moment le plus calme de l'atelier et estime la durée.</p>
+            <button type="button" class="btn btn-secondary small" data-creneaux-ia-bouton>
+                <i data-lucide="sparkles" aria-hidden="true"></i> Suggérer un créneau
+            </button>
+        </div>
+        <p class="creneaux-ia__duree" data-creneaux-ia-duree hidden></p>
+        <div class="creneaux-ia__liste" data-creneaux-ia-liste></div>
+        <p class="creneaux-ia__message" data-creneaux-ia-message role="status" hidden></p>
+    </div>
+
     <div class="form-grid">
         {{-- Durée estimée --}}
         <label>Durée estimée (minutes)
-            <select name="duree" required>
+            <select name="duree" id="rdv-duree" required>
                 <option value="">Sélectionner</option>
                 @foreach([15, 30, 45, 60, 90, 120, 180, 240, 360, 480] as $d)
                     <option value="{{ $d }}"
@@ -100,7 +115,7 @@
 
     {{-- Commentaire --}}
     <label>Commentaire
-        <textarea name="commentaire" placeholder="Précisez la nature de la réparation souhaitée...">{{ old('commentaire', $isEdit ? $rendezVous->commentaire : '') }}</textarea>
+        <textarea name="commentaire" id="rdv-commentaire" placeholder="Précisez la nature de la réparation souhaitée...">{{ old('commentaire', $isEdit ? $rendezVous->commentaire : '') }}</textarea>
         @error('commentaire')
             <span class="form-error">{{ $message }}</span>
         @enderror
@@ -114,6 +129,13 @@
         </button>
     </div>
 </form>
+
+@pushOnce('styles', 'assistant-rdv-css')
+    <link rel="stylesheet" href="{{ asset('css/assistant-rdv.css') }}">
+@endPushOnce
+@pushOnce('scripts', 'assistant-rdv-js')
+    <script src="{{ asset('js/assistant-rdv.js') }}" defer></script>
+@endPushOnce
 
 @if(! empty($servicesParAtelier))
 <script>

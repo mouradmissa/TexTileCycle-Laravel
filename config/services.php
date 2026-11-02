@@ -38,6 +38,12 @@ return [
         'openai_model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
     ],
 
+    // Clé Gemini dédiée au matching et au pré-contrôle des dons (quota séparé).
+    // Vide : les fonctions IA du module (matching, pré-contrôle, besoins) sont désactivées.
+    'dons' => [
+        'gemini_key' => env('GEMINI_DONS_API_KEY'),
+    ],
+
     'whatsapp' => [
         'token' => env('WHATSAPP_TOKEN'),
         'phone_id' => env('WHATSAPP_PHONE_ID'),

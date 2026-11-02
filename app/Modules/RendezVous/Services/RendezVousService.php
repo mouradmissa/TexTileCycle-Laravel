@@ -2,19 +2,36 @@
 
 namespace App\Modules\RendezVous\Services;
 
+use App\Mail\RendezVousAnnulationMail;
+use App\Mail\RendezVousConfirmationMail;
+use App\Mail\RendezVousReservationMail;
 use App\Modules\Ateliers\Models\Service;
 use App\Modules\Auth\Models\User;
 use App\Modules\RendezVous\Models\RendezVous;
 use App\Modules\Vetements\Models\Vetement;
 use App\Modules\Vetements\Services\VetementService;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class RendezVousService
 {
     public function __construct(
-        private VetementService $vetements
+        private VetementService $vetements,
+        private SuggestionCreneauService $creneaux,
+        private ReplanificationService $replanification
     ) {
+    }
+
+    /** Refuse un créneau qui chevauche un RDV en attente ou confirmé du même atelier. */
+    public function verifierCreneauLibre(string $atelierId, mixed $date, int $duree, ?string $ignorerRdvId = null): void
+    {
+        if (! $this->creneaux->estLibre($atelierId, Carbon::parse($date), $duree, $ignorerRdvId)) {
+            throw ValidationException::withMessages([
+                'date_rdv' => 'Ce créneau est déjà pris dans cet atelier. Utilisez « Suggérer un créneau » pour trouver un horaire libre.',
+            ]);
+        }
     }
 
     public function creerPourCitoyen(User $user, array $data): RendezVous
@@ -31,6 +48,7 @@ class RendezVousService
         }
 
         $this->assertServiceDeLatelier($data['service_id'] ?? null, (string) $data['atelier_id']);
+        $this->verifierCreneauLibre((string) $data['atelier_id'], $data['date_rdv'], (int) $data['duree']);
 
         $rdv = RendezVous::create([
             'vetement_id' => (string) $vetement->getKey(),
@@ -45,7 +63,92 @@ class RendezVousService
 
         $this->vetements->assignerPourReparation($vetement, (string) $data['atelier_id']);
 
+        $this->envoyerMail($user, $rdv, RendezVousReservationMail::class);
+
         return $rdv;
+    }
+
+    /**
+     * Remplace un RDV annulé par un nouveau, sur un créneau proposé par l'IA de replanification.
+     *
+     * @param  array{atelier_id: string, service_id?: ?string, date_rdv: string, duree: int}  $data
+     */
+    public function replanifier(User $user, string $ancienId, array $data): RendezVous
+    {
+        $ancien = RendezVous::query()
+            ->where('_id', $ancienId)
+            ->where('user_id', (string) $user->getKey())
+            ->firstOrFail();
+
+        if (! $ancien->peutEtreReplanifie()) {
+            throw ValidationException::withMessages([
+                'rendez_vous' => 'Ce rendez-vous n\'est pas annulé ou a déjà été reprogrammé.',
+            ]);
+        }
+
+        $nouveau = $this->creerPourCitoyen($user, [
+            'vetement_id' => (string) $ancien->vetement_id,
+            'atelier_id' => $data['atelier_id'],
+            'service_id' => $data['service_id'] ?? null,
+            'date_rdv' => $data['date_rdv'],
+            'duree' => $data['duree'],
+            'commentaire' => trim(($ancien->commentaire ?? '').' (Reprogrammé avec l\'IA après l\'annulation du RDV du '
+                .($ancien->date_rdv?->format('d/m/Y à H\hi') ?? '—').'.)'),
+        ]);
+
+        $ancien->replanifie_id = (string) $nouveau->getKey();
+        $ancien->save();
+
+        return $nouveau;
+    }
+
+    /**
+     * Le mail est un plus : son échec ne doit pas annuler l'action sur le rendez-vous.
+     *
+     * @param  class-string<RendezVousReservationMail|RendezVousConfirmationMail|RendezVousAnnulationMail>  $mail
+     * @param  list<mixed>  $arguments  arguments supplémentaires du mail
+     */
+    private function envoyerMail(?User $user, RendezVous $rdv, string $mail, array $arguments = []): void
+    {
+        $email = trim((string) $user?->email);
+        if ($email === '') {
+            return;
+        }
+
+        try {
+            Mail::to($email)->send(new $mail(
+                $rdv->load(['vetement', 'atelier', 'service']),
+                trim((string) $user->name) ?: 'bonjour',
+                ...$arguments
+            ));
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+    }
+
+    /**
+     * Prévient le citoyen au passage à « confirmé », ou à « annulé » par l'atelier ou l'admin :
+     * le mail d'annulation propose alors des créneaux de remplacement.
+     */
+    private function notifierChangementStatut(RendezVous $rdv, string $ancienStatut): void
+    {
+        if ($rdv->statut === $ancienStatut) {
+            return;
+        }
+
+        if ($rdv->statut === RendezVous::STATUT_CONFIRME) {
+            $this->envoyerMail($rdv->user, $rdv, RendezVousConfirmationMail::class);
+        }
+
+        if ($rdv->statut === RendezVous::STATUT_ANNULE && $rdv->annuleParLatelier()) {
+            try {
+                $propositions = $this->replanification->proposer($rdv);
+            } catch (\Throwable $exception) {
+                report($exception);
+                $propositions = [];
+            }
+            $this->envoyerMail($rdv->user, $rdv, RendezVousAnnulationMail::class, [$propositions]);
+        }
     }
 
     public function listerPourAtelier(string $atelierId, ?string $statut = null): Collection
@@ -103,12 +206,18 @@ class RendezVousService
             abort(422, 'Cette action n\'est pas possible pour le statut actuel du rendez-vous.');
         }
 
+        $ancienStatut = (string) $rdv->statut;
         $rdv->statut = $statut;
+        if ($statut === RendezVous::STATUT_ANNULE) {
+            $rdv->annule_par = 'atelier';
+        }
         $rdv->save();
 
         if ($rdv->vetement) {
             $this->vetements->synchroniserDepuisRendezVous($rdv->vetement, $statut);
         }
+
+        $this->notifierChangementStatut($rdv, $ancienStatut);
 
         return $rdv->fresh(['vetement', 'user', 'service']) ?? $rdv;
     }
@@ -120,12 +229,18 @@ class RendezVousService
         }
 
         $rdv = RendezVous::query()->with('vetement')->findOrFail($rdvId);
+        $ancienStatut = (string) $rdv->statut;
         $rdv->statut = $statut;
+        if ($statut === RendezVous::STATUT_ANNULE && $ancienStatut !== RendezVous::STATUT_ANNULE) {
+            $rdv->annule_par = 'admin';
+        }
         $rdv->save();
 
         if ($rdv->vetement) {
             $this->vetements->synchroniserDepuisRendezVous($rdv->vetement, $statut);
         }
+
+        $this->notifierChangementStatut($rdv, $ancienStatut);
 
         return $rdv->fresh(['vetement', 'user', 'service', 'atelier']) ?? $rdv;
     }

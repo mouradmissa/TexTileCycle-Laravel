@@ -5,6 +5,12 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/client-trame.css') }}">
 @endpush
+@pushOnce('styles', 'assistant-rdv-css')
+    <link rel="stylesheet" href="{{ asset('css/assistant-rdv.css') }}">
+@endPushOnce
+@pushOnce('scripts', 'assistant-rdv-js')
+    <script src="{{ asset('js/assistant-rdv.js') }}" defer></script>
+@endPushOnce
 
 @section('bandeau')
     <nav class="tr-ariane" aria-label="Fil d'Ariane">
@@ -28,6 +34,35 @@
 
 @section('content')
 <main class="container page-content client-page">
+
+    {{-- IA : créneaux de remplacement pour les rendez-vous annulés --}}
+    @if($aReprogrammer->isNotEmpty())
+        <section class="replanif-ia" aria-labelledby="replanif-ia-titre">
+            <h2 id="replanif-ia-titre"><i data-lucide="sparkles" aria-hidden="true"></i> À reprogrammer</h2>
+            @foreach($aReprogrammer as $annule)
+                <article class="replanif-ia__carte" id="replanifier-{{ $annule->getKey() }}" data-replanif
+                         data-url="{{ route('front.rdv.ia.replanifier.propositions', $annule->getKey()) }}"
+                         data-url-reprogrammer="{{ route('front.rdv.ia.replanifier', $annule->getKey()) }}"
+                         @if(request('replanifier') === (string) $annule->getKey()) data-auto @endif>
+                    <div class="replanif-ia__tete">
+                        <div>
+                            <strong>{{ $annule->vetement->displayName() }} — {{ $annule->atelierNom() }}</strong>
+                            <p>
+                                {{ $annule->annuleParLatelier() ? 'L\'atelier a annulé' : 'Vous avez annulé' }}
+                                le rendez-vous du {{ $annule->date_rdv?->format('d/m/Y à H\hi') ?? '—' }}.
+                                L'IA cherche un remplacement à la même période de la journée.
+                            </p>
+                        </div>
+                        <button type="button" class="btn btn-primary small" data-replanif-bouton>
+                            <i data-lucide="calendar-sync" aria-hidden="true"></i> Trouver un nouveau créneau
+                        </button>
+                    </div>
+                    <div class="creneaux-ia__liste" data-replanif-liste></div>
+                    <p class="creneaux-ia__message" data-replanif-message role="status" hidden></p>
+                </article>
+            @endforeach
+        </section>
+    @endif
 
     @if($rendezVous->isNotEmpty())
         {{-- Tableau des rendez-vous --}}
@@ -104,6 +139,13 @@
                                         </form>
                                     @endif
 
+                                    {{-- Reprogrammer — RDV annulé, créneaux proposés par l'IA --}}
+                                    @if($aReprogrammer->contains(fn ($a) => (string) $a->getKey() === (string) $rdv->getKey()))
+                                        <a href="#replanifier-{{ $rdv->getKey() }}" class="btn btn-secondary small" title="Reprogrammer avec l'IA">
+                                            <i data-lucide="calendar-sync"></i>
+                                        </a>
+                                    @endif
+
                                     {{-- Supprimer — seulement si en_attente ou annule --}}
                                     @if($rdv->peutEtreSupprime())
                                         <form action="{{ route('front.rdv.destroy', $rdv->getKey()) }}" method="post"
@@ -138,4 +180,6 @@
         </section>
     @endif
 </main>
+
+<x-assistant-rdv />
 @endsection
