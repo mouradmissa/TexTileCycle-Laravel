@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Ateliers\Http\Controllers\Back\AtelierController;
+use App\Modules\Ateliers\Http\Controllers\Back\MonAssistantController;
 use App\Modules\Ateliers\Http\Controllers\Back\MonAtelierController;
 use App\Modules\Ateliers\Http\Controllers\Back\MonPasseportController;
 use App\Modules\Ateliers\Http\Controllers\Back\MonServiceController;
@@ -42,6 +43,12 @@ Route::prefix('ateliers')->name('ateliers.')->group(function () use ($atelierObj
     Route::get('/mes-passeports/{code}/etiquette', [MonPasseportController::class, 'etiquette'])
         ->where('code', Passeport::FORMAT_CODE)
         ->name('passeports.etiquette');
+
+    // Assistant de l'espace atelier (bouton flottant) : questions sur les données de l'atelier connecté.
+    Route::get('/mon-assistant', [MonAssistantController::class, 'create'])->name('assistant');
+    Route::post('/mon-assistant', [MonAssistantController::class, 'store'])
+        ->middleware('throttle:'.AteliersModuleServiceProvider::LIMITEUR_ASSISTANT_ATELIER)
+        ->name('assistant.repondre');
 });
 
 Route::middleware('admin')->prefix('ateliers')->name('ateliers.')->group(function () use ($atelierObjectId, $precognition) {

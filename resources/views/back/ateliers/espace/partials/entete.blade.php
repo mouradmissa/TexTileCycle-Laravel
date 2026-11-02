@@ -61,3 +61,8 @@
         <p><strong>Votre atelier est en cours de validation, il n'est pas encore visible sur la carte.</strong> Vous pouvez déjà compléter votre profil et vos services.</p>
     </div>
 @endif
+
+{{-- Assistant de l'atelier : bouton flottant sur toutes les pages de l'espace, sauf sur sa propre page. --}}
+@if (($onglet ?? null) !== 'assistant')
+    @include('back.ateliers.espace.partials.assistant-flottant')
+@endif

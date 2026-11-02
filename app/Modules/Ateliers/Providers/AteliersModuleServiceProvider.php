@@ -29,6 +29,11 @@ class AteliersModuleServiceProvider extends ServiceProvider
     /** Questions à l'assistant de réparation : chacune occupe le service Python et peut appeler Gemini. */
     public const LIMITEUR_ASSISTANT = 'ateliers-assistant';
 
+    /** Questions à l'assistant de l'espace atelier (par compte). */
+    public const LIMITEUR_ASSISTANT_ATELIER = 'ateliers-assistant-atelier';
+
+    public const QUESTIONS_ATELIER_PAR_MINUTE = 20;
+
     /**
      * Limiteur des avis (publication, modification, suppression) : contre les envois en rafale.
      */
@@ -75,6 +80,11 @@ class AteliersModuleServiceProvider extends ServiceProvider
 
         RateLimiter::for(self::LIMITEUR_ASSISTANT, function (Request $request) {
             return Limit::perMinute(max(1, (int) config('ateliers_diagnostic.assistant_par_minute')))
+                ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip()));
+        });
+
+        RateLimiter::for(self::LIMITEUR_ASSISTANT_ATELIER, function (Request $request) {
+            return Limit::perMinute(self::QUESTIONS_ATELIER_PAR_MINUTE)
                 ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip()));
         });
 

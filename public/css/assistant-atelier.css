@@ -1,0 +1,144 @@
+/* =========================================================================
+   Assistant de l'espace atelier : bouton flottant, panneau et page dédiée (back office).
+   ========================================================================= */
+
+.aa-flottant {
+  position: fixed;
+  right: clamp(14px, 2.5vw, 28px);
+  bottom: clamp(14px, 2.5vw, 28px);
+  z-index: 60;
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.aa-bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--green);
+  box-shadow: 0 8px 24px rgb(16 32 26 / .22);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.aa-bouton:hover,
+.aa-bouton:focus-visible { background: var(--green-dark); color: #fff; }
+.aa-bouton svg { width: 20px; height: 20px; }
+.aa-flottant.est-ouvert .aa-bouton span { display: none; }
+
+.aa-panneau {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(380px, calc(100vw - 28px));
+  max-height: min(560px, calc(100vh - 110px));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  box-shadow: 0 18px 48px rgb(16 32 26 / .24);
+  overflow: hidden;
+}
+
+.aa-panneau[hidden] { display: none; }
+
+.aa-panneau__tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.aa-panneau__tete h2,
+.aa-page h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; }
+.aa-panneau__tete h2 svg,
+.aa-page h2 svg { width: 18px; height: 18px; color: var(--green); }
+
+.aa-panneau .aa-fil { padding: 12px 14px; overflow-y: auto; }
+.aa-panneau .aa-form { padding: 10px 14px 12px; border-top: 1px solid var(--line); }
+
+/* Fil de la conversation. */
+.aa-fil { display: grid; align-content: start; gap: 10px; margin: 0; padding: 0; list-style: none; }
+
+.aa-msg {
+  display: grid;
+  gap: 6px;
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 4px 12px 12px 12px;
+  background: #f3f6f4;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.aa-msg p { margin: 0; overflow-wrap: anywhere; }
+
+.aa-msg--moi {
+  justify-self: end;
+  border-radius: 12px 4px 12px 12px;
+  background: var(--green-soft);
+  color: var(--green-dark);
+  font-weight: 600;
+}
+
+.aa-msg--attente { color: var(--muted); font-style: italic; }
+.aa-titre { font-weight: 700; }
+
+.aa-lignes { display: grid; gap: 4px; margin: 0; padding-left: 18px; font-size: 13px; }
+.aa-lien { display: inline-flex; align-items: center; gap: 4px; color: var(--green-dark); font-size: 13px; font-weight: 650; }
+.aa-lien svg { width: 14px; height: 14px; }
+.aa-via { color: var(--muted); font-size: 11px; }
+
+/* Formulaire. */
+.aa-form { display: grid; gap: 8px; }
+.aa-raccourcis { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.aa-raccourci {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.aa-raccourci:hover,
+.aa-raccourci:focus-visible { border-color: var(--green); color: var(--green-dark); }
+.aa-raccourci:disabled { cursor: wait; opacity: .6; }
+
+.aa-ligne { display: flex; gap: 8px; }
+
+.aa-ligne input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.aa-ligne input[aria-invalid="true"] { border-color: #c62828; }
+.aa-erreur,
+.aa-alerte { margin: 0; color: #a3352a; font-size: 13px; font-weight: 600; }
+.aa-erreur[hidden],
+.aa-alerte[hidden] { display: none; }
+.aa-note { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+
+/* Page dédiée (sans JavaScript, ou ouverte directement). */
+.aa-page { display: grid; gap: 14px; max-width: 760px; }
+.aa-page .aa-fil { padding: 4px 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .aa-panneau:not([hidden]) { animation: aa-ouverture .18s ease-out; }
+}
+
+@keyframes aa-ouverture {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
