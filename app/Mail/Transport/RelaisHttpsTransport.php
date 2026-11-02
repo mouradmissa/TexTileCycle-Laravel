@@ -91,8 +91,9 @@ class RelaisHttpsTransport extends AbstractTransport
             throw new TransportException('Le message n\'a pas pu être préparé pour le relais.');
         }
 
+        $cookies = tempnam(sys_get_temp_dir(), 'relais');
         $canal = curl_init($url);
-        if ($canal === false) {
+        if ($canal === false || $cookies === false) {
             throw new TransportException('Le relais mail est injoignable.');
         }
 
@@ -101,8 +102,52 @@ class RelaisHttpsTransport extends AbstractTransport
             CURLOPT_POSTFIELDS => $corps,
             CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json'],
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => true,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_COOKIEJAR => $cookies,
+            CURLOPT_COOKIEFILE => $cookies,
+            CURLOPT_TIMEOUT => 25,
+            CURLOPT_CONNECTTIMEOUT => 10,
+        ]);
+
+        $brut = curl_exec($canal);
+        $erreur = curl_error($canal);
+        $statut = (int) curl_getinfo($canal, CURLINFO_HTTP_CODE);
+        curl_close($canal);
+
+        if ($brut === false) {
+            @unlink($cookies);
+            throw new TransportException('Le relais mail est injoignable. '.$erreur);
+        }
+
+        $reponse = $this->corpsHttp((string) $brut);
+        if (in_array($statut, [301, 302, 303], true) && preg_match('/^Location:\s*(.+)$/mi', (string) $brut, $correspondance)) {
+            $reponse = $this->lireRedirection(trim($correspondance[1]), $cookies);
+        }
+        @unlink($cookies);
+
+        $decode = json_decode($reponse, true);
+        if (! is_array($decode) || empty($decode['ok'])) {
+            $detail = is_array($decode) ? trim((string) ($decode['error'] ?? '')) : '';
+            throw new TransportException(
+                'Le relais mail a refusé l\'envoi.'.($detail !== '' ? ' '.$detail : '')
+            );
+        }
+    }
+
+    private function lireRedirection(string $url, string $cookies): string
+    {
+        $canal = curl_init($url);
+        if ($canal === false) {
+            throw new TransportException('Le relais mail est injoignable.');
+        }
+
+        curl_setopt_array($canal, [
+            CURLOPT_HTTPGET => true,
+            CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_POSTREDIR => CURL_REDIR_POST_ALL,
+            CURLOPT_COOKIEJAR => $cookies,
+            CURLOPT_COOKIEFILE => $cookies,
             CURLOPT_TIMEOUT => 25,
             CURLOPT_CONNECTTIMEOUT => 10,
         ]);
@@ -115,13 +160,14 @@ class RelaisHttpsTransport extends AbstractTransport
             throw new TransportException('Le relais mail est injoignable. '.$erreur);
         }
 
-        $decode = json_decode($reponse, true);
-        if (! is_array($decode) || empty($decode['ok'])) {
-            $detail = is_array($decode) ? trim((string) ($decode['error'] ?? '')) : '';
-            throw new TransportException(
-                'Le relais mail a refusé l\'envoi.'.($detail !== '' ? ' '.$detail : '')
-            );
-        }
+        return (string) $reponse;
+    }
+
+    private function corpsHttp(string $brut): string
+    {
+        $separateur = strpos($brut, "\r\n\r\n");
+
+        return $separateur === false ? $brut : substr($brut, $separateur + 4);
     }
 
     private function estInline(DataPart $part): bool
